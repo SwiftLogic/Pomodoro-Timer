@@ -14,6 +14,8 @@
 		E941ECBD2882550D005A9077 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E941ECBB2882550D005A9077 /* LaunchScreen.storyboard */; };
 		E941ECC6288256E9005A9077 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E941ECC5288256E9005A9077 /* Utils.swift */; };
 		E941ECC8288257AB005A9077 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E941ECC7288257AB005A9077 /* Constants.swift */; };
+		E9697C1C28902CB90041C045 /* TaskVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9697C1B28902CB90041C045 /* TaskVC.swift */; };
+		E9697C1E28902E4D0041C045 /* VCPreviewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9697C1D28902E4D0041C045 /* VCPreviewer.swift */; };
 		E9BACF38288F94BE00FF885E /* CircularProgressBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9BACF37288F94BE00FF885E /* CircularProgressBarView.swift */; };
 /* End PBXBuildFile section */
 
@@ -27,6 +29,8 @@
 		E941ECBE2882550D005A9077 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E941ECC5288256E9005A9077 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		E941ECC7288257AB005A9077 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		E9697C1B28902CB90041C045 /* TaskVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskVC.swift; sourceTree = "<group>"; };
+		E9697C1D28902E4D0041C045 /* VCPreviewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VCPreviewer.swift; sourceTree = "<group>"; };
 		E9BACF37288F94BE00FF885E /* CircularProgressBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressBarView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -69,6 +73,8 @@
 				E941ECC5288256E9005A9077 /* Utils.swift */,
 				E941ECC7288257AB005A9077 /* Constants.swift */,
 				E9BACF37288F94BE00FF885E /* CircularProgressBarView.swift */,
+				E9697C1B28902CB90041C045 /* TaskVC.swift */,
+				E9697C1D28902E4D0041C045 /* VCPreviewer.swift */,
 			);
 			path = Pomodoro;
 			sourceTree = "<group>";
@@ -145,9 +151,11 @@
 			files = (
 				E941ECC8288257AB005A9077 /* Constants.swift in Sources */,
 				E941ECB52882550A005A9077 /* TimerVC.swift in Sources */,
+				E9697C1C28902CB90041C045 /* TaskVC.swift in Sources */,
 				E941ECB12882550A005A9077 /* AppDelegate.swift in Sources */,
 				E941ECB32882550A005A9077 /* SceneDelegate.swift in Sources */,
 				E9BACF38288F94BE00FF885E /* CircularProgressBarView.swift in Sources */,
+				E9697C1E28902E4D0041C045 /* VCPreviewer.swift in Sources */,
 				E941ECC6288256E9005A9077 /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
