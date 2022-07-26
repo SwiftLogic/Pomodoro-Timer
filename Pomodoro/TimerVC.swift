@@ -18,14 +18,28 @@ class TimerVC: UIViewController {
     }
 
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        setUpCircularProgressBarView()
+    }
+    
     //MARK: - Properties
-    let selectionTypeButtonColor = UIColor.appMainColor.withAlphaComponent(0.4)
-    fileprivate lazy var selectionTypeButton: UIButton = {
+    let currentModeButtonColor = UIColor.appMainColor.withAlphaComponent(0.4)
+    fileprivate lazy var currentModeButton: UIButton = {
         let button = UIButton(type: .system)
         button.layer.borderWidth = 0.8
-        button.layer.borderColor = UIColor.appMainColor.cgColor
+        button.layer.borderColor = currentModeButtonColor.cgColor
         button.setTitle("Work", for: .normal)
-        button.setTitleColor(selectionTypeButtonColor, for: .normal)
+        button.setTitleColor(currentModeButtonColor, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
+        button.backgroundColor = UIColor.appMainColor.withAlphaComponent(0.1)
+        button.tintColor = currentModeButtonColor
+        let config = UIImage.SymbolConfiguration(pointSize: 10, weight: .black, scale: .medium)
+        let image = UIImage(systemName: "chevron.down", withConfiguration:
+                                config)?.withRenderingMode(.alwaysTemplate)
+        button.setImage(image?.withRenderingMode(.alwaysTemplate), for: .normal)
+        button.semanticContentAttribute = .forceRightToLeft
+        button.imageEdgeInsets = .init(top: 0, left: 4, bottom: 0, right: 0)
         return button
     }()
     
@@ -69,16 +83,18 @@ class TimerVC: UIViewController {
     }()
     
     
-    // four circular labels
-    fileprivate let circularRingViewDimen: CGFloat = 150
-    fileprivate lazy var circularRingView: UIView = {
+    fileprivate let circularProgressBarParentViewDimen: CGFloat = 150
+    fileprivate lazy var circularProgressBarParentView: UIView = {
         let view = UIView()
-        view.backgroundColor = .red
-        view.layer.cornerRadius = circularRingViewDimen / 2
+        view.layer.cornerRadius = circularProgressBarParentViewDimen / 2
         view.translatesAutoresizingMaskIntoConstraints = false
+//        view.backgroundColor = .red
         return view
     }()
     
+    fileprivate let circularProgressBarView = CircularProgressBarView(frame: .zero)
+    fileprivate var circularViewDuration: TimeInterval = 5
+
     
     
     fileprivate let startPauseButton: UIButton = {
@@ -104,62 +120,70 @@ class TimerVC: UIViewController {
     }()
     
     
-    // resume / pause timer button
-    
-    
-    // circular progress view
+    fileprivate let timerLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .appMainColor
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        let attributedText = NSMutableAttributedString(string: "7 \n", attributes: [NSAttributedString.Key.foregroundColor : UIColor.appMainColor, NSAttributedString.Key.font : UIFont.systemFont(ofSize: 40, weight: .heavy)])
+        
+        attributedText.append(NSMutableAttributedString(string: "minutes", attributes: [NSAttributedString.Key.foregroundColor : UIColor.appMainColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)]))
+        label.attributedText = attributedText
+        
+        return label
+    }()
     
     fileprivate lazy var firstSessionLabel = createCircularLabel(text: "1")
     fileprivate lazy var secondSessionLabel = createCircularLabel(text: "2")
     fileprivate lazy var thirdSessionLabel = createCircularLabel(text: "3")
     fileprivate lazy var fourthSessionLabel = createCircularLabel(text: "4")
 
+   
     
     
     //MARK: - Methods
+    
+    
     fileprivate func setUpViews() {
         
         // selectionTypeButton
-        view.addSubview(selectionTypeButton)
-        selectionTypeButton.centerXInSuperview()
-        selectionTypeButton.constrainWidth(constant: 100)
-        selectionTypeButton.constrainHeight(constant: 40)
-        selectionTypeButton.layer.cornerRadius = 40 / 2
-        selectionTypeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12).isActive = true
-        
-        let imageAttachment = NSTextAttachment()
-        // If you want to enable Color in the SF Symbols.
-        imageAttachment.image = UIImage(systemName: "chevron.down")?.withTintColor(selectionTypeButtonColor)
-        let fullString = NSMutableAttributedString(string: "Work ")
-        fullString.append(NSAttributedString(attachment: imageAttachment))
-        selectionTypeButton.setAttributedTitle(fullString, for: .normal)
-        
+        view.addSubview(currentModeButton)
+        currentModeButton.centerXInSuperview()
+        currentModeButton.constrainWidth(constant: 85)
+        currentModeButton.constrainHeight(constant: 35)
+        currentModeButton.layer.cornerRadius = 35 / 2
+        currentModeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12).isActive = true
+   
         // currentTaskLabel
         view.addSubview(currentTaskLabel)
         NSLayoutConstraint.activate([
-            currentTaskLabel.centerXAnchor.constraint(equalTo: selectionTypeButton.centerXAnchor),
-            currentTaskLabel.topAnchor.constraint(equalTo: selectionTypeButton.bottomAnchor, constant: 40),
+            currentTaskLabel.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
+            currentTaskLabel.topAnchor.constraint(equalTo: currentModeButton.bottomAnchor, constant: 40),
             currentTaskLabel.widthAnchor.constraint(lessThanOrEqualToConstant: view.frame.width),
             currentTaskLabel.heightAnchor.constraint(equalToConstant: currentTaskLabelHeight)
         ])
         
         
         // circularRingView
-        view.addSubview(circularRingView)
+        view.addSubview(circularProgressBarParentView)
         NSLayoutConstraint.activate([
-            circularRingView.centerXAnchor.constraint(equalTo: selectionTypeButton.centerXAnchor),
-            circularRingView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            circularRingView.widthAnchor.constraint(equalToConstant: circularRingViewDimen),
-            circularRingView.heightAnchor.constraint(equalToConstant: circularRingViewDimen)
+            circularProgressBarParentView.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
+            circularProgressBarParentView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            circularProgressBarParentView.widthAnchor.constraint(equalToConstant: circularProgressBarParentViewDimen),
+            circularProgressBarParentView.heightAnchor.constraint(equalToConstant: circularProgressBarParentViewDimen)
         ])
         
         
         
+        // timerLabel
+        circularProgressBarParentView.addSubview(timerLabel)
+        timerLabel.centerInSuperview()
+        
         // startPauseButton
         view.addSubview(startPauseButton)
         NSLayoutConstraint.activate([
-            startPauseButton.centerXAnchor.constraint(equalTo: selectionTypeButton.centerXAnchor),
-            startPauseButton.topAnchor.constraint(equalTo: circularRingView.bottomAnchor, constant: 40),
+            startPauseButton.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
+            startPauseButton.topAnchor.constraint(equalTo: circularProgressBarParentView.bottomAnchor, constant: 40),
             startPauseButton.widthAnchor.constraint(equalToConstant: 75),
             startPauseButton.heightAnchor.constraint(equalToConstant: 40)
         ])
@@ -168,7 +192,7 @@ class TimerVC: UIViewController {
         // resetButton
         view.addSubview(resetButton)
         NSLayoutConstraint.activate([
-            resetButton.centerXAnchor.constraint(equalTo: selectionTypeButton.centerXAnchor),
+            resetButton.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
             resetButton.topAnchor.constraint(equalTo: startPauseButton.bottomAnchor, constant: 15),
             
         ])
@@ -185,7 +209,7 @@ class TimerVC: UIViewController {
         view.addSubview(stackView)
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: resetButton.bottomAnchor, constant: 15),
-            stackView.centerXAnchor.constraint(equalTo: selectionTypeButton.centerXAnchor),
+            stackView.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
             stackView.leadingAnchor.constraint(equalTo: startPauseButton.leadingAnchor, constant: 5),
             stackView.trailingAnchor.constraint(equalTo: startPauseButton.trailingAnchor, constant: -5),
             stackView.heightAnchor.constraint(equalToConstant: 10)
@@ -208,6 +232,17 @@ class TimerVC: UIViewController {
         
     }
     
+    
+    
+    func setUpCircularProgressBarView() {
+        // set view
+        // align to the center of the screen
+        circularProgressBarView.center = circularProgressBarParentView.center
+        // call the animation with circularViewDuration
+        circularProgressBarView.progressAnimation(duration: circularViewDuration)
+        // add this view to the view controller
+        view.addSubview(circularProgressBarView)
+    }
     
     
     
