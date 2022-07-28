@@ -23,7 +23,7 @@ class TaskVC: UIViewController {
     //MARK: - View's LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setUpNavItems()
+        configureNavBar()
         setUpViews()
     }
     
@@ -45,8 +45,13 @@ class TaskVC: UIViewController {
     
     fileprivate var completedTasks = [
         "Completed task one",
+        "Completed task two",
+        "Completed task three",
+        "Completed task four",
+        "Completed task five",
+        "Take big break now",
+        "Completed task six",
         "Take big break now"
-
     ]
     
     fileprivate lazy var tableView: UITableView = {
@@ -83,25 +88,20 @@ class TaskVC: UIViewController {
     
     
     //MARK: - Methods
-    fileprivate func setUpNavItems() {
+    fileprivate func configureNavBar() {
         navigationItem.title = "Tasks"
         navigationController?.navigationBar.prefersLargeTitles = true
         let appearance = UINavigationBarAppearance()
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.appMainColor]
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.appMainColor, .font: UIFont.systemFont(ofSize: 20, weight: .medium)]
         appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.appMainColor]
-
+        appearance.shadowColor = .clear
+        appearance.backgroundColor = .white
         navigationItem.standardAppearance = appearance
         navigationItem.scrollEdgeAppearance = appearance
-        
-        
-////        et appearance = UINavigationBarAppearance()
-//        appearance.shadowColor = .clear
-////        Assign this appearance to the UINavigationBar:
-//
-//        navigationController?.navigationBar.standardAppearance = appearance
-//        navigationController?.navigationBar.scrollEdgeAppearance = appearance
-//        navigationController?.navigationBar.compactAppearance = appearance
+        navigationItem.compactAppearance = appearance
     }
+    
+    
     
     
     
@@ -114,9 +114,6 @@ class TaskVC: UIViewController {
             addNewTaskButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
             addNewTaskButton.widthAnchor.constraint(equalToConstant: 180),
             addNewTaskButton.heightAnchor.constraint(equalToConstant: 60),
-            
-            
-        
         ])
     }
     
@@ -126,6 +123,26 @@ class TaskVC: UIViewController {
         tableView.fillSuperview()
         tableView.register(TaskCell.self, forCellReuseIdentifier: TaskCell.cellReuseIdentifier)
     }
+    
+    
+    
+    private func generateHapticFeedback() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+    }
+    
+    
+    private func changeNavBarLineColor(to color: UIColor) {
+        let appearance = UINavigationBarAppearance()
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.appMainColor, .font: UIFont.systemFont(ofSize: 20, weight: .medium)]
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.appMainColor]
+        appearance.shadowColor = color
+        appearance.backgroundColor = .white
+        navigationItem.standardAppearance = appearance
+        navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.compactAppearance = appearance
+    }
+    
 }
 
 
@@ -178,92 +195,7 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
     
     
     
-    //MARK: - Swipe Actions
-    private func handleMarkTaskAsComplete(at indexPath: IndexPath) {
-        switch taskSections[indexPath.section] {
-        case .pendingTasks:
-            //remove swiped task from pendingTasks
-            let completed_Task = tasks.remove(at: indexPath.row)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.tableView.deleteRows(at: [indexPath], with: .right)
-            }
-            
-            //add the task to completedTasks section
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-//                self.completedTasks.insert(completed_Task, at: 0)
-//                self.tableView.reloadRows(at: [indexPath], with: .automatic)
-                self.completedTasks.insert(completed_Task, at: 0)
-                self.tableView.reloadData()
-                
-            }
-          
-
-        case .completedTasks:
-            //remove swiped task from completedTasks
-            let pending_Task = completedTasks.remove(at: indexPath.row)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.tableView.deleteRows(at: [indexPath], with: .left)
-            }
-            
-            //add the task to pendingTasks section
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                self.tasks.insert(pending_Task, at: 0)
-                self.tableView.reloadData()
-            }
-           
-        }
-        
-    }
-    
-    
-    private func handleDeleteCell(indexPath: IndexPath) {
-        let alertVC = UIAlertController(title: "Delete Task", message: "Are you sure you want to delete this task?", preferredStyle: .actionSheet)
-        
-        let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { [weak self] _  in
-            self?.deleteTask(at: indexPath)
-        }
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { [weak self] _  in
-            self?.tableView.reloadRows(at: [indexPath], with: .right)
-        }
-        
-        alertVC.addAction(deleteAction)
-        alertVC.addAction(cancelAction)
-        present(alertVC, animated: true)
-    }
-    
-    
-    
-    private func deleteTask(at indexPath: IndexPath) {
-        switch taskSections[indexPath.section] {
-        case .pendingTasks:
-            tasks.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .left)
-            
-        case .completedTasks:
-            completedTasks.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .left)
-        }
-    }
-    
-    
-    
-    
-    private func createSwipeAction(imageName: String, targetAction: Void) -> UIContextualAction {
-        let action = UIContextualAction(style: .normal, title: nil) { (action, view, completionHandler) in
-            targetAction
-            completionHandler(true)
-        }
-        action.backgroundColor = .white
-        let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .black, scale: .large)
-        let image = UIImage(systemName: imageName, withConfiguration:
-                                config)?.colored(in: .appMainColor)
-        action.image = image
-        
-        return action
-    }
-    
-    
+   
     func tableView(_ tableView: UITableView,
                    leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
@@ -303,17 +235,137 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     
-}
-
-extension UIImage {
-        func colored(in color: UIColor) -> UIImage {
-            let renderer = UIGraphicsImageRenderer(size: size)
-            return renderer.image { context in
-                color.set()
-                self.withRenderingMode(.alwaysTemplate).draw(in: CGRect(origin: .zero, size: size))
-            }
+    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        let header = view as! UITableViewHeaderFooterView
+        header.textLabel?.font = UIFont.systemFont(ofSize: 13.5, weight: .black)
+        header.textLabel?.textColor = UIColor.lightGray
+    }
+    
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        // hide and show navline based on scrollview contentOffSet
+        if scrollView.contentOffset.y > 1 {
+            changeNavBarLineColor(to: .lightGray)
+        } else {
+            changeNavBarLineColor(to: .clear)
         }
     }
+    
+    
+}
+
+
+
+
+//MARK: - Swipe Actions
+extension TaskVC {
+    
+    private func handleMarkTaskAsComplete(at indexPath: IndexPath) {
+        return
+        generateHapticFeedback()
+        
+        switch taskSections[indexPath.section] {
+            
+        case .pendingTasks:
+            //remove swiped task from pendingTasks
+            let completed_Task = tasks.remove(at: indexPath.row)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.tableView.deleteRows(at: [indexPath], with: .right)
+            }
+            
+            //add the task to completedTasks section
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.completedTasks.insert(completed_Task, at: 0)
+                self.tableView.reloadData()
+                
+            }
+            
+            
+        case .completedTasks:
+            //remove swiped task from completedTasks
+            let pending_Task = completedTasks.remove(at: indexPath.row)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.tableView.deleteRows(at: [indexPath], with: .left)
+            }
+            
+            //add the task to pendingTasks section
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.tasks.insert(pending_Task, at: 0)
+                self.tableView.reloadData()
+            }
+            
+        }
+        
+    }
+    
+    
+    
+    private func handleDeleteCell(indexPath: IndexPath) {
+        return
+        let alertVC = UIAlertController(title: "Delete Task", message: "Are you sure you want to delete this task?", preferredStyle: .actionSheet)
+        
+        let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { [weak self] _  in
+            self?.deleteTask(at: indexPath)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { [weak self] _  in
+            self?.tableView.reloadRows(at: [indexPath], with: .right)
+        }
+        
+        alertVC.addAction(deleteAction)
+        alertVC.addAction(cancelAction)
+        present(alertVC, animated: true)
+    }
+    
+    
+    
+    
+    private func deleteTask(at indexPath: IndexPath) {
+        return
+        generateHapticFeedback()
+        switch taskSections[indexPath.section] {
+        case .pendingTasks:
+            tasks.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .left)
+            
+        case .completedTasks:
+            completedTasks.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .left)
+        }
+    }
+    
+    
+    
+    
+    private func createSwipeAction(imageName: String, targetAction: Void) -> UIContextualAction {
+        let action = UIContextualAction(style: .normal, title: nil) { (action, view, completionHandler) in
+            targetAction
+            completionHandler(true)
+        }
+        action.backgroundColor = .white
+        let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .black, scale: .large)
+        let image = UIImage(systemName: imageName, withConfiguration:
+                                config)?.colored(in: .appMainColor)
+        action.image = image
+        return action
+    }
+    
+}
+
+
+
+
+extension UIImage {
+    func colored(in color: UIColor) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { context in
+            color.set()
+            self.withRenderingMode(.alwaysTemplate).draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+}
+
+
 
 #if canImport(SwiftUI) && DEBUG
 import SwiftUI

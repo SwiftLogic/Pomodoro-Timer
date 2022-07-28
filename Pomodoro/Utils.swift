@@ -1,14 +1,13 @@
 //
-//  UIView+Layout.swift
-//  AppStoreJSONApis
+//  Utils.swift
+//  Pomodoro
 //
-//  Created by Brian Voong on 2/10/19.
-//  Copyright © 2019 Brian Voong. All rights reserved.
+//  Created by Osaretin Uyigue on 7/15/22.
 //
+
 
 import UIKit
 
-// Reference Video: https://youtu.be/iqpAP7s3b-8
 extension UIView {
     
     @discardableResult
