@@ -30,8 +30,8 @@ class TaskVC: UIViewController {
     //MARK: - Properties
     
     fileprivate let taskSections: [TaskSection] = [.pendingTasks, .completedTasks]
-    
-    fileprivate var tasks = [
+    fileprivate var enableSwipeAction = false
+    fileprivate var pendingTasks = [
         "Build Pomodoro app's task screen's tableView",
         "Add swipe actions to cells",
         "Add dummy data to task screen",
@@ -155,7 +155,7 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
         
         switch taskSections[indexPath.section] {
         case .pendingTasks:
-            cell.taskTitleLabel.text = tasks[indexPath.row]
+            cell.taskTitleLabel.text = pendingTasks[indexPath.row]
             cell.taskTitleLabel.textColor = UIColor.black.withAlphaComponent(0.8)
         case .completedTasks:
             cell.taskTitleLabel.text = completedTasks[indexPath.row]
@@ -164,6 +164,9 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
         
         return cell
     }
+    
+    
+    
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 100
@@ -174,7 +177,7 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
         switch taskSections[section] {
             
         case .pendingTasks:
-            return tasks.count
+            return pendingTasks.count
         case .completedTasks:
             return completedTasks.count
         }
@@ -195,44 +198,73 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
     
     
     
-   
+//    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+//
+//        let deleteAction = UITableViewRowAction(style: .destructive, title: "") { _, indexPath in
+//            print("deleteAction")
+//            self.handleDeleteCell(indexPath: indexPath)
+//        }
+//
+//        let completedAction = UITableViewRowAction(style: .normal, title: "") { _, indexPath in
+//            print("completedAction")
+//            self.handleMarkTaskAsComplete(at: indexPath)
+//
+//        }
+//
+//        let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .black, scale: .large)
+//        let image = UIImage(systemName: "checkmark.square.fill", withConfiguration:
+//                                config)?.colored(in: .appMainColor)
+//
+//        deleteAction.backgroundColor = UIColor.init(patternImage: image ?? UIImage())
+//
+////        deleteAction.backgroundColor = .white
+//        completedAction.backgroundColor  = .white
+//
+//        return [deleteAction, completedAction]
+//
+//    }
+//
+//
+    
+    
+    
+
     func tableView(_ tableView: UITableView,
                    leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        
+
         var imageName: String
-        
+
         switch taskSections[indexPath.section] {
         case .pendingTasks:
             imageName = "checkmark.square.fill"
         case .completedTasks:
             imageName = "arrow.uturn.backward.square.fill"
         }
-        
+
         let completedAction = createSwipeAction(imageName: imageName, targetAction: handleMarkTaskAsComplete(at: indexPath))
-        
+
         return UISwipeActionsConfiguration(actions: [completedAction])
     }
-    
-    
+
+
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        
+
         let deleteAction = createSwipeAction(imageName: "xmark.app.fill", targetAction: handleDeleteCell(indexPath: indexPath))
         let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
         return configuration
-        
+
     }
-    
-    
+
+
     func tableView(_ tableView: UITableView,
                    editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-    
         return .none
     }
-    
+
     
      func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-            return true
-    }
+            return enableSwipeAction
+     }
     
     
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
@@ -242,14 +274,35 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     
+    //MARK: - ScrollView Methods
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         // hide and show navline based on scrollview contentOffSet
+        enableSwipeAction = false
         if scrollView.contentOffset.y > 1 {
             changeNavBarLineColor(to: .lightGray)
         } else {
             changeNavBarLineColor(to: .clear)
         }
     }
+    
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            stoppedScrolling()
+        }
+    }
+
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        stoppedScrolling()
+    }
+
+    
+    private func stoppedScrolling() {
+        enableSwipeAction = true
+    }
+    
+    
     
     
 }
@@ -261,14 +314,13 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
 extension TaskVC {
     
     private func handleMarkTaskAsComplete(at indexPath: IndexPath) {
-        return
         generateHapticFeedback()
         
         switch taskSections[indexPath.section] {
             
         case .pendingTasks:
             //remove swiped task from pendingTasks
-            let completed_Task = tasks.remove(at: indexPath.row)
+            let completed_Task = pendingTasks.remove(at: indexPath.row)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.tableView.deleteRows(at: [indexPath], with: .right)
             }
@@ -290,7 +342,7 @@ extension TaskVC {
             
             //add the task to pendingTasks section
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                self.tasks.insert(pending_Task, at: 0)
+                self.pendingTasks.insert(pending_Task, at: 0)
                 self.tableView.reloadData()
             }
             
@@ -301,7 +353,6 @@ extension TaskVC {
     
     
     private func handleDeleteCell(indexPath: IndexPath) {
-        return
         let alertVC = UIAlertController(title: "Delete Task", message: "Are you sure you want to delete this task?", preferredStyle: .actionSheet)
         
         let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { [weak self] _  in
@@ -321,11 +372,10 @@ extension TaskVC {
     
     
     private func deleteTask(at indexPath: IndexPath) {
-        return
         generateHapticFeedback()
         switch taskSections[indexPath.section] {
         case .pendingTasks:
-            tasks.remove(at: indexPath.row)
+            pendingTasks.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .left)
             
         case .completedTasks:
