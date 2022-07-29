@@ -300,6 +300,22 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
     
     
     
+    
+    
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        switch taskSections[indexPath.section] {
+        case .pendingTasks:
+            return pendingTaskMenu()
+        case .completedTasks:
+            return completedTaskMenu()
+        }
+    }
+    
+    
+    
+   
+    
+    
 }
 
 
@@ -401,6 +417,74 @@ extension TaskVC {
     
 }
 
+
+
+//MARK: - Menu Actions
+extension TaskVC {
+    private func createMenuAction(title: String,
+                          imageName: String,
+                          targetSelector: Void) -> UIAction {
+        let action = UIAction(title: title,
+                                   image: UIImage(systemName: imageName),
+                                   identifier: nil,
+                                   discoverabilityTitle: nil,
+                                   state: .off) { _ in
+            
+            targetSelector
+        }
+        
+        return action
+    }
+        
+    
+    private func pendingTaskMenu() -> UIContextMenuConfiguration {
+        let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) {[weak self] _ in
+            
+            guard let self = self else {return nil}
+            
+            let markAsCompleteOption = self.createMenuAction(title: "Mark as completed", imageName: "checkmark.square.fill", targetSelector: ())
+            
+            let pinOption = self.createMenuAction(title: "Make a Pinned", imageName: "pin.fill", targetSelector: ())
+
+            
+            let editOption = self.createMenuAction(title: "Edit", imageName: "pencil", targetSelector: ())
+
+            let deleteOption = self.createMenuAction(title: "Delete", imageName: "xmark.app.fill", targetSelector: ())
+
+            
+            return UIMenu(title: "",
+                          image: nil,
+                          identifier: nil,
+                          options: .displayInline,
+                          children: [markAsCompleteOption, pinOption, editOption, deleteOption])
+        }
+        
+        return config
+    }
+    
+    
+    private func completedTaskMenu() -> UIContextMenuConfiguration  {
+        let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) {[weak self] _ in
+            
+            guard let self = self else {return nil}
+            
+            let moveToPendingOption = self.createMenuAction(title: "Move to pending Task", imageName: "arrow.uturn.backward.square.fill", targetSelector: ())
+            
+            let deleteOption = self.createMenuAction(title: "Delete", imageName: "xmark.app.fill", targetSelector: ())
+
+            
+            return UIMenu(title: "",
+                          image: nil,
+                          identifier: nil,
+                          options: .displayInline,
+                          children: [moveToPendingOption, deleteOption])
+        }
+        
+        return config
+    }
+    
+    
+}
 
 
 
