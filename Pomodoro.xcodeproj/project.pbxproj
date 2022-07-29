@@ -17,6 +17,7 @@
 		E9697C1C28902CB90041C045 /* TaskVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9697C1B28902CB90041C045 /* TaskVC.swift */; };
 		E9697C1E28902E4D0041C045 /* VCPreviewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9697C1D28902E4D0041C045 /* VCPreviewer.swift */; };
 		E9697C2028903F810041C045 /* TaskCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9697C1F28903F810041C045 /* TaskCell.swift */; };
+		E9845FC12893724000DFC7B1 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9845FC02893724000DFC7B1 /* TaskItem.swift */; };
 		E9BACF38288F94BE00FF885E /* CircularProgressBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9BACF37288F94BE00FF885E /* CircularProgressBarView.swift */; };
 /* End PBXBuildFile section */
 
@@ -33,6 +34,7 @@
 		E9697C1B28902CB90041C045 /* TaskVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskVC.swift; sourceTree = "<group>"; };
 		E9697C1D28902E4D0041C045 /* VCPreviewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VCPreviewer.swift; sourceTree = "<group>"; };
 		E9697C1F28903F810041C045 /* TaskCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCell.swift; sourceTree = "<group>"; };
+		E9845FC02893724000DFC7B1 /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
 		E9BACF37288F94BE00FF885E /* CircularProgressBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressBarView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -78,6 +80,7 @@
 				E9697C1B28902CB90041C045 /* TaskVC.swift */,
 				E9697C1D28902E4D0041C045 /* VCPreviewer.swift */,
 				E9697C1F28903F810041C045 /* TaskCell.swift */,
+				E9845FC02893724000DFC7B1 /* TaskItem.swift */,
 			);
 			path = Pomodoro;
 			sourceTree = "<group>";
@@ -154,6 +157,7 @@
 			files = (
 				E941ECC8288257AB005A9077 /* Constants.swift in Sources */,
 				E941ECB52882550A005A9077 /* TimerVC.swift in Sources */,
+				E9845FC12893724000DFC7B1 /* TaskItem.swift in Sources */,
 				E9697C1C28902CB90041C045 /* TaskVC.swift in Sources */,
 				E941ECB12882550A005A9077 /* AppDelegate.swift in Sources */,
 				E941ECB32882550A005A9077 /* SceneDelegate.swift in Sources */,

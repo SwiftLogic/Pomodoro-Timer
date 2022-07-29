@@ -31,34 +31,35 @@ class TaskVC: UIViewController {
     
     fileprivate let taskSections: [TaskSection] = [.pendingTasks, .completedTasks]
     fileprivate var enableSwipeAction = false
+    fileprivate var pinnedItemIndexPath: IndexPath?
+    
     fileprivate var pendingTasks = [
-        "Build Pomodoro app's task screen's tableView",
-        "Add swipe actions to cells",
-        "Add dummy data to task screen",
-        "Configure cell's UI",
-        "Build and Design Add New Task View",
-        "Add gif to Drag to Reorder Collectionview cells Tutorial",
-        "Write and Deploy building Youtube Video Player tutorial to blog site",
-        "Email Suggestion article"
+        TaskItem(description: "Build Pomodoro app's task screen's tableView"),
+        TaskItem(description: "Add swipe actions to cells"),
+        TaskItem(description: "Add dummy data to task screen"),
+        TaskItem(description: "Configure cell's UI"),
+        TaskItem(description: "Build and Design Add New Task View"),
+        TaskItem(description: "Add gif to Drag to Reorder Collectionview cells Tutorial"),
+        TaskItem(description: "Write and Deploy building Youtube Video Player tutorial to blog site"),
+        TaskItem(description: "Email Suggestion article")
     ]
     
     
     fileprivate var completedTasks = [
-        "Completed task one",
-        "Completed task two",
-        "Completed task three",
-        "Completed task four",
-        "Completed task five",
-        "Take big break now",
-        "Completed task six",
-        "Take big break now"
+        TaskItem(description: "Add haptic feedback", isCompleted: true),
+        TaskItem(description: "Setup navbar", isCompleted: true),
+        TaskItem(description: "Configure section header's font", isCompleted: true),
+        TaskItem(description: "Add pin task", isCompleted: true),
     ]
+    
     
     fileprivate lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
+        tableView.showsVerticalScrollIndicator = false
+        tableView.allowsMultipleSelection = false
         return tableView
     }()
     
@@ -154,15 +155,40 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: TaskCell.cellReuseIdentifier, for: indexPath) as! TaskCell
         
         switch taskSections[indexPath.section] {
+            
         case .pendingTasks:
-            cell.taskTitleLabel.text = pendingTasks[indexPath.row]
-            cell.taskTitleLabel.textColor = UIColor.black.withAlphaComponent(0.8)
+            let taskItem = pendingTasks[indexPath.row]
+            cell.configure(with: taskItem)
+            
         case .completedTasks:
-            cell.taskTitleLabel.text = completedTasks[indexPath.row]
-            cell.taskTitleLabel.textColor = UIColor.lightGray
+            let taskItem = completedTasks[indexPath.row]
+            cell.configure(with: taskItem)
         }
         
         return cell
+    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        switch taskSections[indexPath.section] {
+            
+        case .pendingTasks:
+
+            let hapticFeedBackGenerator = UIImpactFeedbackGenerator(style: .light)
+            
+            hapticFeedBackGenerator.impactOccurred()
+            
+            if let pinnedItemIndexPath = pinnedItemIndexPath {
+                pendingTasks[pinnedItemIndexPath.row].selected = false
+            }
+            pinnedItemIndexPath = indexPath
+            pendingTasks[indexPath.row].selected = true
+            tableView.reloadData()
+                        
+        case .completedTasks:
+            break
+        }
     }
     
     
@@ -195,37 +221,6 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
             return TaskSection.completedTasks.description
         }
     }
-    
-    
-    
-//    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-//
-//        let deleteAction = UITableViewRowAction(style: .destructive, title: "") { _, indexPath in
-//            print("deleteAction")
-//            self.handleDeleteCell(indexPath: indexPath)
-//        }
-//
-//        let completedAction = UITableViewRowAction(style: .normal, title: "") { _, indexPath in
-//            print("completedAction")
-//            self.handleMarkTaskAsComplete(at: indexPath)
-//
-//        }
-//
-//        let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .black, scale: .large)
-//        let image = UIImage(systemName: "checkmark.square.fill", withConfiguration:
-//                                config)?.colored(in: .appMainColor)
-//
-//        deleteAction.backgroundColor = UIColor.init(patternImage: image ?? UIImage())
-//
-////        deleteAction.backgroundColor = .white
-//        completedAction.backgroundColor  = .white
-//
-//        return [deleteAction, completedAction]
-//
-//    }
-//
-//
-    
     
     
 
@@ -320,13 +315,15 @@ extension TaskVC {
             
         case .pendingTasks:
             //remove swiped task from pendingTasks
-            let completed_Task = pendingTasks.remove(at: indexPath.row)
+            var completed_Task = pendingTasks.remove(at: indexPath.row)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.tableView.deleteRows(at: [indexPath], with: .right)
             }
             
             //add the task to completedTasks section
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                completed_Task.isCompleted = true
+                completed_Task.selected = false
                 self.completedTasks.insert(completed_Task, at: 0)
                 self.tableView.reloadData()
                 
@@ -335,13 +332,15 @@ extension TaskVC {
             
         case .completedTasks:
             //remove swiped task from completedTasks
-            let pending_Task = completedTasks.remove(at: indexPath.row)
+            var pending_Task = completedTasks.remove(at: indexPath.row)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.tableView.deleteRows(at: [indexPath], with: .left)
             }
             
             //add the task to pendingTasks section
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                pending_Task.isCompleted = false
+                pending_Task.selected = false
                 self.pendingTasks.insert(pending_Task, at: 0)
                 self.tableView.reloadData()
             }

@@ -35,13 +35,21 @@ class TaskCell: UITableViewCell {
     }()
     
     
-    fileprivate(set) var taskTitleLabel: UILabel = {
+    fileprivate let taskTitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Added Dummy Data"
         label.numberOfLines = 2
         let font = UIFont.systemFont(ofSize: 14, weight: .medium)
         label.font = font
         return label
+    }()
+    
+    
+    fileprivate let pinImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "pin.fill")?.withRenderingMode(.alwaysTemplate)
+        imageView.tintColor = .white
+        imageView.isHidden = true
+        return imageView
     }()
     
     
@@ -53,9 +61,32 @@ class TaskCell: UITableViewCell {
         taskTitleLabel.centerYInSuperview()
         taskTitleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 15).isActive = true
         taskTitleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -15).isActive = true
+        
+        containerView.addSubview(pinImageView)
+        pinImageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -15).isActive = true
+        pinImageView.centerYInSuperview()
 
     }
     
     
+    func configure(with taskItem: TaskItem) {
+        
+        taskTitleLabel.text = taskItem.description
+        
+        if taskItem.selected {
+            containerView.backgroundColor = .appMainColor
+            taskTitleLabel.textColor = .white
+            pinImageView.isHidden = false
+        } else {
+            let pendingTaskTextColor = UIColor.black.withAlphaComponent(0.8)
+            let completedTaskTextColor = UIColor.lightGray
+
+            containerView.backgroundColor = UIColor.rgb(red: 242, green: 242, blue: 246)
+            taskTitleLabel.textColor = taskItem.isCompleted ? completedTaskTextColor :  pendingTaskTextColor
+            pinImageView.isHidden = true
+        }
+    }
+    
+   
     
 }
