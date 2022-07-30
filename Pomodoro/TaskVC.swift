@@ -65,7 +65,7 @@ class TaskVC: UIViewController {
     
     
     
-    fileprivate let addNewTaskButton: UIButton = {
+    fileprivate lazy var addNewTaskButton: UIButton = {
         let button = UIButton(type: .system)
         let config = UIImage.SymbolConfiguration(pointSize: 20,
                                                  weight: .black,
@@ -84,7 +84,25 @@ class TaskVC: UIViewController {
         button.layer.cornerRadius = 12
         button.translatesAutoresizingMaskIntoConstraints = false
         button.imageEdgeInsets = .init(top: 0, left: -15, bottom: 0, right: 0)
+        button.addTarget(self, action: #selector(didTapAddNewTaskBtn), for: .primaryActionTriggered)
         return button
+    }()
+    
+    
+    
+    fileprivate lazy var dimView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.8)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapDimView))
+        view.isUserInteractionEnabled = true
+        view.addGestureRecognizer(tapGesture)
+        return view
+    }()
+    
+    private lazy var addNewTaskView: AddNewTaskView = {
+        let addNewtaskView = AddNewTaskView()
+        addNewtaskView.delegate = self
+        return addNewtaskView
     }()
     
     
@@ -144,8 +162,47 @@ class TaskVC: UIViewController {
         navigationItem.compactAppearance = appearance
     }
     
+    
+   
+    
+    //MARK: - Target Selectors
+    @objc fileprivate func didTapAddNewTaskBtn() {
+        guard let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) else {return}
+
+        keyWindow.addSubview(dimView)
+        dimView.fillSuperview()
+        keyWindow.addSubview(addNewTaskView)
+        addNewTaskView.anchor(top: keyWindow.safeAreaLayoutGuide.topAnchor, leading: keyWindow.leadingAnchor, bottom: nil, trailing: keyWindow.trailingAnchor, padding: .init(top: 120, left: 0, bottom: 0, right: 0),  size: .init(width: 0, height: 220))
+        
+        addNewTaskView.prepareViewForUse()
+
+    }
+    
+    
+    
+    @objc fileprivate func didTapDimView() {
+        handleDismissAddNewTaskView()
+    }
 }
 
+
+
+//MARK: - AddNewTaskViewDelegate
+extension TaskVC: AddNewTaskViewDelegate {
+    
+    func handleSaveTask(_ taskItem: TaskItem) {
+        pendingTasks.insert(taskItem, at: 0)
+        tableView.reloadData()
+        handleDismissAddNewTaskView()
+
+    }
+    
+    func handleDismissAddNewTaskView() {
+        dimView.removeFromSuperview()
+        addNewTaskView.removeFromSuperview()
+    }
+    
+}
 
 
 //MARK: - TableView Protocols
@@ -299,9 +356,6 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
     
     
     
-    
-    
-    
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         switch taskSections[indexPath.section] {
         case .pendingTasks:
@@ -310,11 +364,6 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
             return completedTaskMenu()
         }
     }
-    
-    
-    
-   
-    
     
 }
 
