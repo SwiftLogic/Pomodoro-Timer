@@ -72,23 +72,71 @@
 		E941ECAF2882550A005A9077 /* Pomodoro */ = {
 			isa = PBXGroup;
 			children = (
-				E941ECB02882550A005A9077 /* AppDelegate.swift */,
-				E941ECB22882550A005A9077 /* SceneDelegate.swift */,
-				E941ECB42882550A005A9077 /* TimerVC.swift */,
-				E941ECB92882550D005A9077 /* Assets.xcassets */,
-				E941ECBB2882550D005A9077 /* LaunchScreen.storyboard */,
-				E941ECBE2882550D005A9077 /* Info.plist */,
-				E941ECC5288256E9005A9077 /* Utils.swift */,
-				E941ECC7288257AB005A9077 /* Constants.swift */,
-				E9BACF37288F94BE00FF885E /* CircularProgressBarView.swift */,
-				E9697C1B28902CB90041C045 /* TaskVC.swift */,
-				E9697C1D28902E4D0041C045 /* VCPreviewer.swift */,
-				E9697C1F28903F810041C045 /* TaskCell.swift */,
-				E9845FC02893724000DFC7B1 /* TaskItem.swift */,
-				E99DA55F2894BFFD004B9298 /* AddNewTaskView.swift */,
-				E99DA5612894D1D2004B9298 /* Protocols.swift */,
+				E99DA5632894E7B5004B9298 /* Models */,
+				E99DA5642894E7BE004B9298 /* Views */,
+				E99DA5652894E7C5004B9298 /* Controllers */,
+				E99DA5672894E82A004B9298 /* Utils */,
+				E99DA5682894E852004B9298 /* Files */,
+				E99DA5662894E815004B9298 /* Protocols */,
 			);
 			path = Pomodoro;
+			sourceTree = "<group>";
+		};
+		E99DA5632894E7B5004B9298 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E9845FC02893724000DFC7B1 /* TaskItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		E99DA5642894E7BE004B9298 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				E99DA55F2894BFFD004B9298 /* AddNewTaskView.swift */,
+				E9697C1F28903F810041C045 /* TaskCell.swift */,
+				E9BACF37288F94BE00FF885E /* CircularProgressBarView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		E99DA5652894E7C5004B9298 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				E941ECB42882550A005A9077 /* TimerVC.swift */,
+				E9697C1B28902CB90041C045 /* TaskVC.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		E99DA5662894E815004B9298 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				E99DA5612894D1D2004B9298 /* Protocols.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		E99DA5672894E82A004B9298 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				E941ECC7288257AB005A9077 /* Constants.swift */,
+				E9697C1D28902E4D0041C045 /* VCPreviewer.swift */,
+				E941ECC5288256E9005A9077 /* Utils.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		E99DA5682894E852004B9298 /* Files */ = {
+			isa = PBXGroup;
+			children = (
+				E941ECBE2882550D005A9077 /* Info.plist */,
+				E941ECB92882550D005A9077 /* Assets.xcassets */,
+				E941ECB22882550A005A9077 /* SceneDelegate.swift */,
+				E941ECB02882550A005A9077 /* AppDelegate.swift */,
+				E941ECBB2882550D005A9077 /* LaunchScreen.storyboard */,
+			);
+			name = Files;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
