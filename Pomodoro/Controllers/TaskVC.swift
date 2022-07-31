@@ -163,6 +163,20 @@ class TaskVC: UIViewController {
     }
     
     
+    fileprivate func handlePinTask(at indexPath: IndexPath) {
+        let hapticFeedBackGenerator = UIImpactFeedbackGenerator(style: .light)
+        
+        hapticFeedBackGenerator.impactOccurred()
+        
+        if let pinnedItemIndexPath = pinnedItemIndexPath {
+            pendingTasks[pinnedItemIndexPath.row].selected = false
+        }
+        pinnedItemIndexPath = indexPath
+        pendingTasks[indexPath.row].selected = true
+        tableView.reloadData()
+    }
+    
+    
    
     
     //MARK: - Target Selectors
@@ -227,21 +241,16 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
     
     
     
+    
+    
+    
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch taskSections[indexPath.section] {
             
         case .pendingTasks:
 
-            let hapticFeedBackGenerator = UIImpactFeedbackGenerator(style: .light)
-            
-            hapticFeedBackGenerator.impactOccurred()
-            
-            if let pinnedItemIndexPath = pinnedItemIndexPath {
-                pendingTasks[pinnedItemIndexPath.row].selected = false
-            }
-            pinnedItemIndexPath = indexPath
-            pendingTasks[indexPath.row].selected = true
-            tableView.reloadData()
+            handlePinTask(at: indexPath)
                         
         case .completedTasks:
             break
@@ -359,9 +368,9 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         switch taskSections[indexPath.section] {
         case .pendingTasks:
-            return pendingTaskMenu()
+            return pendingTaskMenu(at: indexPath)
         case .completedTasks:
-            return completedTaskMenu()
+            return completedTaskMenu(at: indexPath)
         }
     }
     
@@ -377,7 +386,7 @@ extension TaskVC {
         generateHapticFeedback()
         
         switch taskSections[indexPath.section] {
-            
+         // moves pending task to completed
         case .pendingTasks:
             //remove swiped task from pendingTasks
             var completed_Task = pendingTasks.remove(at: indexPath.row)
@@ -395,6 +404,7 @@ extension TaskVC {
             }
             
             
+        // moves completedTask To pending
         case .completedTasks:
             //remove swiped task from completedTasks
             var pending_Task = completedTasks.remove(at: indexPath.row)
@@ -486,19 +496,81 @@ extension TaskVC {
     }
         
     
-    private func pendingTaskMenu() -> UIContextMenuConfiguration {
+    
+    
+    
+    private func pendingTaskMenu(at indexPath: IndexPath) -> UIContextMenuConfiguration {
         let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) {[weak self] _ in
             
             guard let self = self else {return nil}
             
-            let markAsCompleteOption = self.createMenuAction(title: "Mark as completed", imageName: "checkmark.square.fill", targetSelector: ())
+//            let markAsCompleteOption = self.createMenuAction(title: "Mark as completed", imageName: "checkmark.square.fill", targetSelector: self.printman())
             
-            let pinOption = self.createMenuAction(title: "Make a Pinned", imageName: "pin.fill", targetSelector: ())
+            let markAsCompleteOption = UIAction(title: "Mark as completed",
+                                       image: UIImage(systemName: "checkmark.square.fill")) {[weak self] _ in
+                
+                self?.handleMarkTaskAsComplete(at: indexPath)
+            }
+            
+            
+            
+//            let pinOption = self.createMenuAction(title: "Make a Pinned", imageName: "pin.fill", targetSelector: ())
+            
+            
+            //TODO: - MUST REFACTOR FROM HERE////////
+            var pinOption: UIAction
+            if let pinnedIndexPath = self.pinnedItemIndexPath {
+                
+                if pinnedIndexPath == indexPath {
+                    pinOption =  UIAction(title: "Remove Pin",
+                                          image: UIImage(systemName: "pin.slash.fill")) {[weak self] _ in
+                         
+                         print("remove pin")
+                         
+                     }
+                } else {
+                    pinOption = UIAction(title: "Make a Pinned",
+                                         image: UIImage(systemName: "pin.fill")) {[weak self] _ in
+                        
+                        self?.handlePinTask(at: indexPath)
+                    }
+                }
+                
+            } else {
+                
+                pinOption = UIAction(title: "Make a Pinned",
+                                     image: UIImage(systemName: "pin.fill")) {[weak self] _ in
+                    
+                    self?.handlePinTask(at: indexPath)
+                }
+
+            }
+            //TODO: - MUST REFACTOR TO HERE////////
 
             
-            let editOption = self.createMenuAction(title: "Edit", imageName: "pencil", targetSelector: ())
+            //TODO: - change pinnedItemIndexPath: IndexPath to pinnedItem: TaskItem because index path is not a reliable way to check for pins since when we migrate completed task to pending tasks the indexpaths gets rearranged.
+           
+            
+            
+//            let editOption = self.createMenuAction(title: "Edit", imageName: "pencil", targetSelector: ())
+            
+            let editOption = UIAction(title: "Edit",
+                                       image: UIImage(systemName: "pencil")) {[weak self] _ in
+                
+                print("editOption tapped")
+            }
 
-            let deleteOption = self.createMenuAction(title: "Delete", imageName: "xmark.app.fill", targetSelector: ())
+            
+
+//            let deleteOption = self.createMenuAction(title: "Delete", imageName: "xmark.app.fill", targetSelector: ())
+            
+            
+            let deleteOption = UIAction(title: "Delete",
+                                       image: UIImage(systemName: "xmark.app.fill")) {[weak self] _ in
+                
+                self?.handleDeleteCell(indexPath: indexPath)
+            }
+
 
             
             return UIMenu(title: "",
@@ -512,14 +584,28 @@ extension TaskVC {
     }
     
     
-    private func completedTaskMenu() -> UIContextMenuConfiguration  {
+    private func completedTaskMenu(at indexPath: IndexPath) -> UIContextMenuConfiguration  {
         let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) {[weak self] _ in
             
             guard let self = self else {return nil}
             
-            let moveToPendingOption = self.createMenuAction(title: "Move to pending Task", imageName: "arrow.uturn.backward.square.fill", targetSelector: ())
+//            let moveToPendingOption = self.createMenuAction(title: "Move to pending Task", imageName: "arrow.uturn.backward.square.fill", targetSelector: ())
             
-            let deleteOption = self.createMenuAction(title: "Delete", imageName: "xmark.app.fill", targetSelector: ())
+            
+            let moveToPendingOption = UIAction(title: "Move to pending Task",
+                                       image: UIImage(systemName: "arrow.uturn.backward.square.fill")) {[weak self] _ in
+                
+                self?.handleMarkTaskAsComplete(at: indexPath)
+            }
+
+            
+//            let deleteOption = self.createMenuAction(title: "Delete", imageName: "xmark.app.fill", targetSelector: ())
+            
+            let deleteOption = UIAction(title: "Delete",
+                                       image: UIImage(systemName: "xmark.app.fill")) {[weak self] _ in
+                
+                self?.handleDeleteCell(indexPath: indexPath)
+            }
 
             
             return UIMenu(title: "",
