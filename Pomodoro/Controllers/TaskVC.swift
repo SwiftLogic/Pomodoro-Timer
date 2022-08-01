@@ -84,7 +84,7 @@ class TaskVC: UIViewController {
         button.layer.cornerRadius = 12
         button.translatesAutoresizingMaskIntoConstraints = false
         button.imageEdgeInsets = .init(top: 0, left: -15, bottom: 0, right: 0)
-        button.addTarget(self, action: #selector(didTapAddNewTaskBtn), for: .primaryActionTriggered)
+        button.addTarget(self, action: #selector(handlePresentTaskView), for: .primaryActionTriggered)
         return button
     }()
     
@@ -180,7 +180,7 @@ class TaskVC: UIViewController {
    
     
     //MARK: - Target Selectors
-    @objc fileprivate func didTapAddNewTaskBtn() {
+    @objc fileprivate func handlePresentTaskView() {
         guard let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) else {return}
 
         keyWindow.addSubview(dimView)
@@ -205,11 +205,24 @@ class TaskVC: UIViewController {
 extension TaskVC: AddNewTaskViewDelegate {
     
     func handleSaveTask(_ taskItem: TaskItem) {
+        generateHapticFeedback()
         pendingTasks.insert(taskItem, at: 0)
         tableView.reloadData()
         handleDismissAddNewTaskView()
 
     }
+    
+    
+    func handleUpdate(taskItem: TaskItem) {
+        generateHapticFeedback()
+        if let index = pendingTasks.firstIndex(of: taskItem) {
+            pendingTasks[index] = taskItem
+            tableView.reloadData()
+        }
+        handleDismissAddNewTaskView()
+    }
+    
+    
     
     func handleDismissAddNewTaskView() {
         dimView.removeFromSuperview()
@@ -381,6 +394,10 @@ extension TaskVC: UITableViewDelegate, UITableViewDataSource {
 
 //MARK: - Swipe Actions
 extension TaskVC {
+    
+    
+    
+    
     
     private func handleMarkTaskAsComplete(at indexPath: IndexPath) {
         generateHapticFeedback()
@@ -556,13 +573,14 @@ extension TaskVC {
             
             let editOption = UIAction(title: "Edit",
                                        image: UIImage(systemName: "pencil")) {[weak self] _ in
+                guard let self = self else {return}
                 
-                print("editOption tapped")
+                self.handleEdit(taskItem: self.pendingTasks[indexPath.row])
+                
             }
 
             
 
-//            let deleteOption = self.createMenuAction(title: "Delete", imageName: "xmark.app.fill", targetSelector: ())
             
             
             let deleteOption = UIAction(title: "Delete",
@@ -588,9 +606,7 @@ extension TaskVC {
         let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) {[weak self] _ in
             
             guard let self = self else {return nil}
-            
-//            let moveToPendingOption = self.createMenuAction(title: "Move to pending Task", imageName: "arrow.uturn.backward.square.fill", targetSelector: ())
-            
+                        
             
             let moveToPendingOption = UIAction(title: "Move to pending Task",
                                        image: UIImage(systemName: "arrow.uturn.backward.square.fill")) {[weak self] _ in
@@ -598,9 +614,7 @@ extension TaskVC {
                 self?.handleMarkTaskAsComplete(at: indexPath)
             }
 
-            
-//            let deleteOption = self.createMenuAction(title: "Delete", imageName: "xmark.app.fill", targetSelector: ())
-            
+                        
             let deleteOption = UIAction(title: "Delete",
                                        image: UIImage(systemName: "xmark.app.fill")) {[weak self] _ in
                 
@@ -616,6 +630,13 @@ extension TaskVC {
         }
         
         return config
+    }
+    
+    
+    
+    fileprivate func handleEdit(taskItem: TaskItem) {
+        handlePresentTaskView()
+        addNewTaskView.edit(taskItem: taskItem)
     }
     
     

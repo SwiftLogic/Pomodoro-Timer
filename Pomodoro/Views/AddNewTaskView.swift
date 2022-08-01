@@ -23,6 +23,9 @@ class AddNewTaskView: UIView {
     
     
     //MARK: - Properties
+    fileprivate var isEditingTaskItem = false
+    fileprivate var editedTaskItem: TaskItem?
+    
     weak var delegate: AddNewTaskViewDelegate?
     fileprivate let titleLabel: UILabel = {
         let label = UILabel()
@@ -113,9 +116,18 @@ class AddNewTaskView: UIView {
     
     
     func prepareViewForUse() {
+        editedTaskItem = nil
+        isEditingTaskItem = false
         addTaskTextField.text = ""
         addTaskTextField.becomeFirstResponder()
         
+    }
+    
+    
+    func edit(taskItem: TaskItem) {
+        editedTaskItem = taskItem
+        isEditingTaskItem = true
+        addTaskTextField.text = taskItem.description
     }
     
     
@@ -130,8 +142,15 @@ class AddNewTaskView: UIView {
             delegate?.handleDismissAddNewTaskView()
             return}
         
-        let taskItem = TaskItem(description: text, selected: false, isCompleted: false)
-        delegate?.handleSaveTask(taskItem)
+        if isEditingTaskItem {
+            guard let editedTaskItem = editedTaskItem else {return}
+            let updatedItem = TaskItem(id: editedTaskItem.id, description: text, selected: editedTaskItem.selected, isCompleted: false)
+            delegate?.handleUpdate(taskItem: updatedItem)
+            
+        } else {
+            let taskItem = TaskItem(description: text, selected: false, isCompleted: false)
+            delegate?.handleSaveTask(taskItem)
+        }
     }
     
 }
