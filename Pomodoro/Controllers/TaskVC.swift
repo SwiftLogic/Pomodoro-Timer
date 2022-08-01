@@ -31,7 +31,7 @@ class TaskVC: UIViewController {
     
     fileprivate let taskSections: [TaskSection] = [.pendingTasks, .completedTasks]
     fileprivate var enableSwipeAction = false
-    fileprivate var pinnedItemIndexPath: IndexPath?
+    fileprivate var pinnedTaskItem: TaskItem?
     
     fileprivate var pendingTasks = [
         TaskItem(description: "Build Pomodoro app's task screen's tableView"),
@@ -164,15 +164,40 @@ class TaskVC: UIViewController {
     
     
     fileprivate func handlePinTask(at indexPath: IndexPath) {
+        // haptic feedback
         let hapticFeedBackGenerator = UIImpactFeedbackGenerator(style: .light)
-        
         hapticFeedBackGenerator.impactOccurred()
         
-        if let pinnedItemIndexPath = pinnedItemIndexPath {
-            pendingTasks[pinnedItemIndexPath.row].selected = false
+        // unpins previously pinned item
+        if let pinnedTaskItem = pinnedTaskItem {
+            if let index = pendingTasks.firstIndex(of: pinnedTaskItem) {
+                pendingTasks[index].selected = false
+            }
         }
-        pinnedItemIndexPath = indexPath
+        
+        // pins new taskitem
+        let newPinnedItem = pendingTasks[indexPath.row]
+        pinnedTaskItem = newPinnedItem
         pendingTasks[indexPath.row].selected = true
+        tableView.reloadData()
+    }
+    
+    
+    fileprivate func handleUnPinTask(at indexPath: IndexPath) {
+        // haptic feedback
+        let hapticFeedBackGenerator = UIImpactFeedbackGenerator(style: .light)
+        hapticFeedBackGenerator.impactOccurred()
+        
+        
+        // unpins previously pinned item from array
+        if let pinnedTaskItem = pinnedTaskItem {
+            if let index = pendingTasks.firstIndex(of: pinnedTaskItem) {
+                pendingTasks[index].selected = false
+            }
+        }
+        
+        // remove pin task for variable
+        pinnedTaskItem = nil
         tableView.reloadData()
     }
     
@@ -521,56 +546,18 @@ extension TaskVC {
             
             guard let self = self else {return nil}
             
-//            let markAsCompleteOption = self.createMenuAction(title: "Mark as completed", imageName: "checkmark.square.fill", targetSelector: self.printman())
-            
+           // mark as completed action
             let markAsCompleteOption = UIAction(title: "Mark as completed",
                                        image: UIImage(systemName: "checkmark.square.fill")) {[weak self] _ in
                 
                 self?.handleMarkTaskAsComplete(at: indexPath)
             }
             
-            
-            
-//            let pinOption = self.createMenuAction(title: "Make a Pinned", imageName: "pin.fill", targetSelector: ())
-            
-            
-            //TODO: - MUST REFACTOR FROM HERE////////
-            var pinOption: UIAction
-            if let pinnedIndexPath = self.pinnedItemIndexPath {
-                
-                if pinnedIndexPath == indexPath {
-                    pinOption =  UIAction(title: "Remove Pin",
-                                          image: UIImage(systemName: "pin.slash.fill")) {[weak self] _ in
-                         
-                         print("remove pin")
-                         
-                     }
-                } else {
-                    pinOption = UIAction(title: "Make a Pinned",
-                                         image: UIImage(systemName: "pin.fill")) {[weak self] _ in
-                        
-                        self?.handlePinTask(at: indexPath)
-                    }
-                }
-                
-            } else {
-                
-                pinOption = UIAction(title: "Make a Pinned",
-                                     image: UIImage(systemName: "pin.fill")) {[weak self] _ in
-                    
-                    self?.handlePinTask(at: indexPath)
-                }
-
-            }
-            //TODO: - MUST REFACTOR TO HERE////////
-
-            
-            //TODO: - change pinnedItemIndexPath: IndexPath to pinnedItem: TaskItem because index path is not a reliable way to check for pins since when we migrate completed task to pending tasks the indexpaths gets rearranged.
+            // pin actions
+            let selectedTaskItem = self.pendingTasks[indexPath.row]
+            let pinOption = self.createPinAction(for: selectedTaskItem, at: indexPath)
            
-            
-            
-//            let editOption = self.createMenuAction(title: "Edit", imageName: "pencil", targetSelector: ())
-            
+            // edit action
             let editOption = UIAction(title: "Edit",
                                        image: UIImage(systemName: "pencil")) {[weak self] _ in
                 guard let self = self else {return}
@@ -579,17 +566,12 @@ extension TaskVC {
                 
             }
 
-            
-
-            
-            
+            // delete action
             let deleteOption = UIAction(title: "Delete",
                                        image: UIImage(systemName: "xmark.app.fill")) {[weak self] _ in
                 
                 self?.handleDeleteCell(indexPath: indexPath)
             }
-
-
             
             return UIMenu(title: "",
                           image: nil,
@@ -630,6 +612,51 @@ extension TaskVC {
         }
         
         return config
+    }
+    
+    
+    private func createAddPinAction(at indexPath: IndexPath) -> UIAction {
+        let pinAction = UIAction(title: "Make a Pinned",
+                             image: UIImage(systemName: "pin.fill")) {[weak self] _ in
+            
+            self?.handlePinTask(at: indexPath)
+        }
+        return pinAction
+    }
+    
+    
+    private func createRemovePinAction(at indexPath: IndexPath) -> UIAction {
+        let removePinAction =  UIAction(title: "Remove Pin",
+                              image: UIImage(systemName: "pin.slash.fill")) {[weak self] _ in
+            self?.handleUnPinTask(at: indexPath)
+         }
+        return removePinAction
+    }
+    
+    
+    fileprivate func createPinAction(for selectedTaskItem: TaskItem,
+                                     at indexPath: IndexPath) -> UIAction {
+        var pinAction: UIAction
+        
+        guard let pinnedTaskItem = pinnedTaskItem else {
+            //there is no pinnedItem. Therefore  show add pin option
+            pinAction = createAddPinAction(at: indexPath)
+            return pinAction
+        }
+        
+        let selectedItemIsPinned: Bool = pinnedTaskItem == selectedTaskItem ? true : false
+        
+        switch selectedItemIsPinned {
+        case true:
+            // selected item is pinned, show remove pin option
+            pinAction =  createRemovePinAction(at: indexPath)
+            
+        case false:
+            // selected item is not pinned, show add pin option
+            pinAction = createAddPinAction(at: indexPath)
+        }
+                        
+        return pinAction
     }
     
     
