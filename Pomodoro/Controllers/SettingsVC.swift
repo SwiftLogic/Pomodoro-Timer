@@ -28,9 +28,17 @@ class SettingsVC: UITableViewController {
         "App Version"
         ]
     
+    
+    fileprivate let timeSettingsItems = [
+    
+        "Work",
+        "Short Break",
+        "Long Break"
+    ]
+    
     fileprivate lazy var settingsSection: [SettingsItem] = [
         .siriShortCuts,
-        .timerSettings,
+        .timerSettings(timeSettingsItems),
         .toggleSettings,
         .workSessions,
         .more(moreSettingItems) ]
@@ -41,11 +49,12 @@ class SettingsVC: UITableViewController {
         
         tableView.register(SiriShortcutCell.self, forCellReuseIdentifier: SiriShortcutCell.cellReuseIdentifier)
         
-        
+        tableView.register(TimerSettingsCell.self, forCellReuseIdentifier: TimerSettingsCell.cellReuseIdentifier)
+
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellReuseIdentifier)
         
         tableView.register(MoreSettingsCell.self, forCellReuseIdentifier: MoreSettingsCell.cellIdentifier)
-
+        
 
         tableView.showsVerticalScrollIndicator = false
         tableView.separatorStyle = .none
@@ -66,14 +75,15 @@ extension SettingsVC {
         switch settingsSection[indexPath.section] {
             
         case .siriShortCuts:
-            
             let cell = tableView.dequeueReusableCell(withIdentifier: SiriShortcutCell.cellReuseIdentifier, for: indexPath) as! SiriShortcutCell
             return cell
             
         case .timerSettings:
-            let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier, for: indexPath)
-            cell.backgroundColor = .white
+            let cell = tableView.dequeueReusableCell(withIdentifier: TimerSettingsCell.cellReuseIdentifier, for: indexPath) as! TimerSettingsCell
+            let title = timeSettingsItems[indexPath.row]
+            cell.configureTitle(with: title)
             return cell
+            
 
         case .toggleSettings:
             let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier, for: indexPath)
@@ -104,7 +114,7 @@ extension SettingsVC {
             return 85
             
         case .timerSettings:
-            return 100
+            return 170
 
         case .toggleSettings:
             return 120
@@ -125,8 +135,10 @@ extension SettingsVC {
             
         case .siriShortCuts:
             return 1
-        case .timerSettings:
-            return 2
+            
+        case .timerSettings(let timeSettingsItems):
+            return timeSettingsItems.count
+
         case .toggleSettings:
             return 2
 
