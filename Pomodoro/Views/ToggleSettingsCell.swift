@@ -68,7 +68,6 @@ class ToggleSettingsCell: UITableViewCell {
 
         dividerView.anchor(top: nil, leading: titleLabel.leadingAnchor, bottom: bottomAnchor, trailing: trailingAnchor, padding: .init(top: 0, left: 0, bottom: 0, right: 20), size: .init(width: 0, height: 1))
         
-        titleLabel.text = "Prevent Screen Lock"
     }
 
 }

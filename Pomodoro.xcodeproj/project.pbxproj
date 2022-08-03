@@ -23,6 +23,7 @@
 		E9697C1E28902E4D0041C045 /* VCPreviewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9697C1D28902E4D0041C045 /* VCPreviewer.swift */; };
 		E9697C2028903F810041C045 /* TaskCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9697C1F28903F810041C045 /* TaskCell.swift */; };
 		E97BF1C1289AD106001EB220 /* ToggleSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97BF1C0289AD106001EB220 /* ToggleSettingsCell.swift */; };
+		E97BF1C3289AD601001EB220 /* WorkSessionsRecordCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97BF1C2289AD601001EB220 /* WorkSessionsRecordCell.swift */; };
 		E9845FC12893724000DFC7B1 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9845FC02893724000DFC7B1 /* TaskItem.swift */; };
 		E99DA5602894BFFD004B9298 /* AddNewTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E99DA55F2894BFFD004B9298 /* AddNewTaskView.swift */; };
 		E99DA5622894D1D2004B9298 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = E99DA5612894D1D2004B9298 /* Protocols.swift */; };
@@ -48,6 +49,7 @@
 		E9697C1D28902E4D0041C045 /* VCPreviewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VCPreviewer.swift; sourceTree = "<group>"; };
 		E9697C1F28903F810041C045 /* TaskCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCell.swift; sourceTree = "<group>"; };
 		E97BF1C0289AD106001EB220 /* ToggleSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleSettingsCell.swift; sourceTree = "<group>"; };
+		E97BF1C2289AD601001EB220 /* WorkSessionsRecordCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkSessionsRecordCell.swift; sourceTree = "<group>"; };
 		E9845FC02893724000DFC7B1 /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
 		E99DA55F2894BFFD004B9298 /* AddNewTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewTaskView.swift; sourceTree = "<group>"; };
 		E99DA5612894D1D2004B9298 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 				E92E4630289A0C11001C596F /* MoreSettingsCell.swift */,
 				E92E4632289A12FE001C596F /* TimerSettingsCell.swift */,
 				E97BF1C0289AD106001EB220 /* ToggleSettingsCell.swift */,
+				E97BF1C2289AD601001EB220 /* WorkSessionsRecordCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -243,6 +246,7 @@
 				E92E462D2899F7E8001C596F /* SettingsItem.swift in Sources */,
 				E9BACF38288F94BE00FF885E /* CircularProgressBarView.swift in Sources */,
 				E9697C1E28902E4D0041C045 /* VCPreviewer.swift in Sources */,
+				E97BF1C3289AD601001EB220 /* WorkSessionsRecordCell.swift in Sources */,
 				E9697C2028903F810041C045 /* TaskCell.swift in Sources */,
 				E941ECC6288256E9005A9077 /* Utils.swift in Sources */,
 			);

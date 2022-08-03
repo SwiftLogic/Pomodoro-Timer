@@ -6,7 +6,6 @@
 //
 
 import UIKit
-fileprivate let cellReuseIdentifier = "SettingsVC-cellReuseIdentifier"
 class SettingsVC: UITableViewController {
     
     //MARK: - View's LifeCycle
@@ -64,7 +63,7 @@ class SettingsVC: UITableViewController {
         tableView.register(ToggleSettingsCell.self, forCellReuseIdentifier: ToggleSettingsCell.cellReuseIdentifier)
 
         
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellReuseIdentifier)
+        tableView.register(WorkSessionsRecordCell.self, forCellReuseIdentifier: WorkSessionsRecordCell.cellReuseIdentifier)
         
         tableView.register(MoreSettingsCell.self, forCellReuseIdentifier: MoreSettingsCell.cellIdentifier)
         
@@ -105,8 +104,7 @@ extension SettingsVC {
             return cell
 
         case .workSessions:
-            let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier, for: indexPath)
-            cell.backgroundColor = .white
+            let cell = tableView.dequeueReusableCell(withIdentifier: WorkSessionsRecordCell.cellReuseIdentifier, for: indexPath) as! WorkSessionsRecordCell
             return cell
 
         case .more(let moreSettingItems):
@@ -125,7 +123,7 @@ extension SettingsVC {
         switch settingsSection[indexPath.section] {
             
         case .siriShortCuts:
-            return 85
+            return 95
             
         case .timerSettings:
             return 170
@@ -134,7 +132,7 @@ extension SettingsVC {
             return 100
 
         case .workSessions:
-            return 120
+            return 170
 
         case .more:
             return 70
@@ -157,7 +155,7 @@ extension SettingsVC {
             return toggleSettingsData.count
 
         case .workSessions:
-            return 2
+            return 1
 
         case .more(let moreSettings):
             return moreSettings.count
