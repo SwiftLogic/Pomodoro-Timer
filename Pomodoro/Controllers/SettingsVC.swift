@@ -30,16 +30,26 @@ class SettingsVC: UITableViewController {
     
     
     fileprivate let timeSettingsItems = [
-    
         "Work",
         "Short Break",
         "Long Break"
     ]
     
+    
+    fileprivate let toggleSettingsData = [
+    
+        "Prevent Screen Lock",
+        "Confirm Delete Task",
+        "Play Sound on completion",
+        "Noitification on completion"
+    ]
+    
+    
+    
     fileprivate lazy var settingsSection: [SettingsItem] = [
         .siriShortCuts,
         .timerSettings(timeSettingsItems),
-        .toggleSettings,
+        .toggleSettings(toggleSettingsData),
         .workSessions,
         .more(moreSettingItems) ]
     
@@ -50,7 +60,10 @@ class SettingsVC: UITableViewController {
         tableView.register(SiriShortcutCell.self, forCellReuseIdentifier: SiriShortcutCell.cellReuseIdentifier)
         
         tableView.register(TimerSettingsCell.self, forCellReuseIdentifier: TimerSettingsCell.cellReuseIdentifier)
+        
+        tableView.register(ToggleSettingsCell.self, forCellReuseIdentifier: ToggleSettingsCell.cellReuseIdentifier)
 
+        
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellReuseIdentifier)
         
         tableView.register(MoreSettingsCell.self, forCellReuseIdentifier: MoreSettingsCell.cellIdentifier)
@@ -78,16 +91,17 @@ extension SettingsVC {
             let cell = tableView.dequeueReusableCell(withIdentifier: SiriShortcutCell.cellReuseIdentifier, for: indexPath) as! SiriShortcutCell
             return cell
             
-        case .timerSettings:
+        case .timerSettings(let timeSettingsItems):
             let cell = tableView.dequeueReusableCell(withIdentifier: TimerSettingsCell.cellReuseIdentifier, for: indexPath) as! TimerSettingsCell
             let title = timeSettingsItems[indexPath.row]
             cell.configureTitle(with: title)
             return cell
             
 
-        case .toggleSettings:
-            let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier, for: indexPath)
-            cell.backgroundColor = .white
+        case .toggleSettings(let toggleSettingsData):
+            let cell = tableView.dequeueReusableCell(withIdentifier: ToggleSettingsCell.cellReuseIdentifier, for: indexPath) as! ToggleSettingsCell
+            let title = toggleSettingsData[indexPath.row]
+            cell.titleLabel.text = title
             return cell
 
         case .workSessions:
@@ -95,7 +109,7 @@ extension SettingsVC {
             cell.backgroundColor = .white
             return cell
 
-        case .more:
+        case .more(let moreSettingItems):
             let cell = tableView.dequeueReusableCell(withIdentifier: MoreSettingsCell.cellIdentifier, for: indexPath) as! MoreSettingsCell
             let title = moreSettingItems[indexPath.row]
             cell.configureTitle(with: title)
@@ -117,7 +131,7 @@ extension SettingsVC {
             return 170
 
         case .toggleSettings:
-            return 120
+            return 100
 
         case .workSessions:
             return 120
@@ -139,8 +153,8 @@ extension SettingsVC {
         case .timerSettings(let timeSettingsItems):
             return timeSettingsItems.count
 
-        case .toggleSettings:
-            return 2
+        case .toggleSettings(let toggleSettingsData):
+            return toggleSettingsData.count
 
         case .workSessions:
             return 2
@@ -168,7 +182,7 @@ extension SettingsVC {
     
     
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 80
+        return 70
     }
     
     
