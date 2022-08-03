@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		E92E462B2899BDBC001C596F /* SettingsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92E462A2899BDBC001C596F /* SettingsVC.swift */; };
 		E92E462D2899F7E8001C596F /* SettingsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92E462C2899F7E8001C596F /* SettingsItem.swift */; };
+		E92E462F2899FC05001C596F /* SiriShortcutCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92E462E2899FC05001C596F /* SiriShortcutCell.swift */; };
 		E941ECB12882550A005A9077 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E941ECB02882550A005A9077 /* AppDelegate.swift */; };
 		E941ECB32882550A005A9077 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E941ECB22882550A005A9077 /* SceneDelegate.swift */; };
 		E941ECB52882550A005A9077 /* TimerVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E941ECB42882550A005A9077 /* TimerVC.swift */; };
@@ -28,6 +29,7 @@
 /* Begin PBXFileReference section */
 		E92E462A2899BDBC001C596F /* SettingsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsVC.swift; sourceTree = "<group>"; };
 		E92E462C2899F7E8001C596F /* SettingsItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsItem.swift; sourceTree = "<group>"; };
+		E92E462E2899FC05001C596F /* SiriShortcutCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiriShortcutCell.swift; sourceTree = "<group>"; };
 		E941ECAD2882550A005A9077 /* Pomodoro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pomodoro.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E941ECB02882550A005A9077 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E941ECB22882550A005A9077 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -101,6 +103,7 @@
 				E99DA55F2894BFFD004B9298 /* AddNewTaskView.swift */,
 				E9697C1F28903F810041C045 /* TaskCell.swift */,
 				E9BACF37288F94BE00FF885E /* CircularProgressBarView.swift */,
+				E92E462E2899FC05001C596F /* SiriShortcutCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -222,6 +225,7 @@
 				E99DA5622894D1D2004B9298 /* Protocols.swift in Sources */,
 				E9845FC12893724000DFC7B1 /* TaskItem.swift in Sources */,
 				E9697C1C28902CB90041C045 /* TaskVC.swift in Sources */,
+				E92E462F2899FC05001C596F /* SiriShortcutCell.swift in Sources */,
 				E941ECB12882550A005A9077 /* AppDelegate.swift in Sources */,
 				E941ECB32882550A005A9077 /* SceneDelegate.swift in Sources */,
 				E92E462D2899F7E8001C596F /* SettingsItem.swift in Sources */,
