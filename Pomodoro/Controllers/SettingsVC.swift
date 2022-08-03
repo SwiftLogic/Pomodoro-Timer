@@ -18,12 +18,22 @@ class SettingsVC: UITableViewController {
     
 
     //MARK: - Properties
-    fileprivate let settingsSection: [SettingsItem] = [
+    fileprivate let moreSettingItems = [
+        "How it works?",
+        "Share App",
+        "Write a Review",
+        "Feature Request",
+        "Report a Bug",
+        "Developer's Twitter",
+        "App Version"
+        ]
+    
+    fileprivate lazy var settingsSection: [SettingsItem] = [
         .siriShortCuts,
         .timerSettings,
         .toggleSettings,
         .workSessions,
-        .more ]
+        .more(moreSettingItems) ]
     
     
     //MARK: - Methods
@@ -31,9 +41,15 @@ class SettingsVC: UITableViewController {
         
         tableView.register(SiriShortcutCell.self, forCellReuseIdentifier: SiriShortcutCell.cellReuseIdentifier)
         
+        
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellReuseIdentifier)
+        
+        tableView.register(MoreSettingsCell.self, forCellReuseIdentifier: MoreSettingsCell.cellIdentifier)
+
+
         tableView.showsVerticalScrollIndicator = false
         tableView.separatorStyle = .none
+        tableView.contentInset = .init(top: 0, left: 0, bottom: 40, right: 0)
     }
     
     
@@ -70,8 +86,9 @@ extension SettingsVC {
             return cell
 
         case .more:
-            let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier, for: indexPath)
-            cell.backgroundColor = .white
+            let cell = tableView.dequeueReusableCell(withIdentifier: MoreSettingsCell.cellIdentifier, for: indexPath) as! MoreSettingsCell
+            let title = moreSettingItems[indexPath.row]
+            cell.configureTitle(with: title)
             return cell
 
         }
@@ -81,13 +98,44 @@ extension SettingsVC {
     
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return indexPath.section == 0 ? 85 : 100
+        switch settingsSection[indexPath.section] {
+            
+        case .siriShortCuts:
+            return 85
+            
+        case .timerSettings:
+            return 100
+
+        case .toggleSettings:
+            return 120
+
+        case .workSessions:
+            return 120
+
+        case .more:
+            return 70
+
+        }
     }
     
     
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return section == 0 ? 1 : 5
+        switch settingsSection[section] {
+            
+        case .siriShortCuts:
+            return 1
+        case .timerSettings:
+            return 2
+        case .toggleSettings:
+            return 2
+
+        case .workSessions:
+            return 2
+
+        case .more(let moreSettings):
+            return moreSettings.count
+        }
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {

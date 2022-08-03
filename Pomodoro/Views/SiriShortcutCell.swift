@@ -34,7 +34,7 @@ class SiriShortcutCell: UITableViewCell {
     }()
     
     
-    fileprivate let titleLabel: UILabel = {
+    fileprivate(set) lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 2
         let font = UIFont.systemFont(ofSize: 14, weight: .medium)

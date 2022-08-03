@@ -6,8 +6,8 @@
 //
 
 import UIKit
-enum SettingsItem: Int, CustomStringConvertible {
-    case siriShortCuts, timerSettings, toggleSettings, workSessions, more
+enum SettingsItem: CustomStringConvertible {
+    case siriShortCuts, timerSettings, toggleSettings, workSessions, more([String])
     
     var description: String {
         switch self {
