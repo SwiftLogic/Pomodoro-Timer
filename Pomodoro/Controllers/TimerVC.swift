@@ -80,6 +80,7 @@ class TimerVC: UIViewController {
         button.layer.cornerRadius = taskButtonDimen / 2
         button.tintColor = .lightGray
         button.backgroundColor = UIColor.rgb(red: 242, green: 242, blue: 246)
+        button.addTarget(self, action: #selector(didTapSettingsButton), for: .touchUpInside)
         return button
     }()
     
@@ -267,6 +268,12 @@ class TimerVC: UIViewController {
         let taskVC = TaskVC()
         let navVC = UINavigationController(rootViewController: taskVC)
         present(navVC, animated: true)
+    }
+    
+    
+    @objc fileprivate func didTapSettingsButton() {
+        let settingsVC = SettingsVC()
+        present(settingsVC, animated: true)
     }
 
 }

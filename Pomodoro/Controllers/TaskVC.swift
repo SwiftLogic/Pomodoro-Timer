@@ -682,24 +682,3 @@ extension UIImage {
 }
 
 
-
-#if canImport(SwiftUI) && DEBUG
-import SwiftUI
-
-let deviceNames: [String] = [
-    "iPhone SE (2nd generation)"
-]
-
-@available(iOS 13.0, *)
-struct ViewController_Preview: PreviewProvider {
-    static var previews: some View {
-        ForEach(deviceNames, id: \.self) { deviceName in
-            UIViewControllerPreview {
-                UINavigationController(rootViewController: TaskVC())
-                
-            }.previewDevice(PreviewDevice(rawValue: deviceName))
-                .previewDisplayName(deviceName)
-        }
-    }
-}
-#endif
