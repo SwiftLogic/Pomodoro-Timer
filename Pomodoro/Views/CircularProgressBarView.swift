@@ -24,7 +24,7 @@ class CircularProgressBarView: UIView {
     // MARK: - Properties
     
     private var circleLayer = CAShapeLayer()
-    private var progressLayer = CAShapeLayer()
+     var progressLayer = CAShapeLayer()
     
     
     private var startPoint = CGFloat(-Double.pi / 2)
@@ -51,7 +51,7 @@ class CircularProgressBarView: UIView {
         progressLayer.fillColor = UIColor.clear.cgColor
         progressLayer.lineCap = .round
         progressLayer.lineWidth = progressLineWideth
-        progressLayer.strokeEnd = 0
+        progressLayer.strokeEnd = 1.0
         progressLayer.strokeColor = UIColor.appMainColor.cgColor
         // added progressLayer to layer
         layer.addSublayer(progressLayer)

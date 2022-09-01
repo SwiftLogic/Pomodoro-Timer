@@ -1,0 +1,127 @@
+//
+//  TimerVCTests.swift
+//  PomodoroTests
+//
+//  Created by Osaretin Uyigue on 9/1/22.
+//
+
+import XCTest
+@testable import Pomodoro
+
+class TimerVCTests: XCTestCase {
+
+    
+    var sut: TimerVC!
+    override func setUpWithError() throws {
+        sut = TimerVC()
+    }
+
+    override func tearDownWithError() throws {
+        sut = nil
+    }
+
+   
+    
+    func testStartPauseButton_HasAction() throws {
+        let startPauseButton = sut.startPauseTimerButton
+        
+        let startPauseButtonActions = try XCTUnwrap(startPauseButton.actions(forTarget: sut, forControlEvent: .touchUpInside), "startPauseButton has no actions assigned to it")
+        
+        XCTAssertEqual(startPauseButtonActions.count, 1)
+        XCTAssertTrue(startPauseButtonActions.contains("didTapStartPauseButton"), "There is no action with the name didTapStartPauseButton assigned to startPauseButton")
+        
+    }
+
+    
+    func testStartPauseButtonConfig_WhenTimeIs_InActive() {
+        let startPauseButton = sut.startPauseTimerButton
+        sut.configureStartPauseTimerButton(using: .inactive)
+        let expectedBackgroundColor = UIColor.appMainColor
+        let expectedTextColor = UIColor.white
+        let expectedTitle = TimerButtonTitle.start
+                
+        
+        XCTAssertEqual(startPauseButton.backgroundColor, expectedBackgroundColor, "startPauseButton backgroundColor does not match the expectedBackgroundColor")
+        
+        XCTAssertEqual(startPauseButton.titleLabel?.textColor, expectedTextColor, "startPauseButton textColor does not match the expectedTextColor")
+        
+
+        XCTAssertEqual(startPauseButton.titleLabel?.text, expectedTitle, "startPauseButton titleLabelText does not match the expectedTitle")
+
+    }
+    
+    
+    
+    func testStartPauseButtonConfig_WhenTimerIsActive() {
+        let startPauseButton = sut.startPauseTimerButton
+        sut.configureStartPauseTimerButton(using: .active)
+        let expectedBackgroundColor = UIColor.appMilkyColor
+        let expectedTextColor = UIColor.gray
+        let expectedTitle = TimerButtonTitle.pause
+                
+        
+        XCTAssertEqual(startPauseButton.backgroundColor, expectedBackgroundColor, "startPauseButton backgroundColor does not match the expectedBackgroundColor")
+        
+        XCTAssertEqual(startPauseButton.titleLabel?.textColor, expectedTextColor, "startPauseButton textColor does not match the expectedTextColor")
+        
+
+        XCTAssertEqual(startPauseButton.titleLabel?.text, expectedTitle, "startPauseButton titleLabelText does not match the expectedTitle")
+    }
+    
+    
+    func testStartPauseButtonConfigWhenTimeIs_onHold() {
+        let startPauseButton = sut.startPauseTimerButton
+        sut.configureStartPauseTimerButton(using: .onHold)
+        let expectedBackgroundColor = UIColor.appMainColor
+        let expectedTextColor = UIColor.white
+        let expectedTitle = TimerButtonTitle.resume
+        
+        XCTAssertEqual(startPauseButton.backgroundColor, expectedBackgroundColor, "startPauseButton backgroundColor does not match the expectedBackgroundColor")
+        
+        XCTAssertEqual(startPauseButton.titleLabel?.textColor, expectedTextColor, "startPauseButton textColor does not match the expectedTextColor")
+        
+
+        XCTAssertEqual(startPauseButton.titleLabel?.text, expectedTitle, "startPauseButton titleLabelText does not match the expectedTitle")
+    }
+    
+    
+    
+    func testStartPauseButtonStartsTimerWhenTapped() {
+        let startPauseButton = sut.startPauseTimerButton
+        startPauseButton.sendActions(for: .touchUpInside)
+        XCTAssertNotNil(sut.timer, "Timer was not initialized")
+        XCTAssertEqual(sut.currentTimerStatus, .active)
+
+    }
+    
+    
+    func testStartPauseButtonPausesTimer_WhenCurrentTimerStatusIsActive() {
+        // start timer
+        let startPauseButton = sut.startPauseTimerButton
+        startPauseButton.sendActions(for: .touchUpInside)
+        // pause timer
+        let expectation = expectation(description: "Wait split second to pause timer")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.sut.handleStartPauseButtonActions(basedOn: .active)
+            
+            // assertions
+            XCTAssertNil(self.sut.timer, "Timer was not removed")
+            XCTAssertEqual(self.sut.currentTimerStatus, .onHold, "currentTimerStatus was not updated to reflect the new status of onHold")
+            expectation.fulfill()
+
+        }
+        
+        wait(for: [expectation], timeout: 0.2)
+       
+    }
+    
+    
+    func testButtonResumesTimer_WhenCurrentTimerStatusIsOnhold() {
+        self.sut.handleStartPauseButtonActions(basedOn: .onHold)
+        // assertions
+        XCTAssertNotNil(self.sut.timer, "Timer was not resumed")
+        XCTAssertEqual(self.sut.currentTimerStatus, .active, "currentTimerStatus was not updated to reflect the new status of active")
+    }
+
+    
+}

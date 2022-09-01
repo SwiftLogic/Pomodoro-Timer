@@ -15,6 +15,7 @@ class TimerVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setUpViews()
+        configureStartPauseTimerButton(using: .inactive)
     }
 
     
@@ -25,6 +26,25 @@ class TimerVC: UIViewController {
     
     //MARK: - Properties
     let currentModeButtonColor = UIColor.appMainColor.withAlphaComponent(0.4)
+    fileprivate(set) var timer: Timer?
+    
+    fileprivate var elapsedTimeInSeconds = 0
+    
+    fileprivate var elapsedTimeInMinutes: CGFloat {
+        get {
+            return CGFloat(elapsedTimeInSeconds / 60)
+        }
+    }
+    
+    fileprivate var focusDurationInMinutes = 1
+    
+    fileprivate(set) var currentTimerStatus: TimerStatus = .inactive {
+        didSet {
+            configureStartPauseTimerButton(using: currentTimerStatus)
+        }
+    }
+
+    
     fileprivate lazy var currentModeButton: UIButton = {
         let button = UIButton(type: .system)
         button.layer.borderWidth = 0.8
@@ -90,7 +110,6 @@ class TimerVC: UIViewController {
         let view = UIView()
         view.layer.cornerRadius = circularProgressBarParentViewDimen / 2
         view.translatesAutoresizingMaskIntoConstraints = false
-//        view.backgroundColor = .red
         return view
     }()
     
@@ -99,14 +118,12 @@ class TimerVC: UIViewController {
 
     
     
-    fileprivate let startPauseButton: UIButton = {
+    fileprivate(set) lazy var startPauseTimerButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("START", for: .normal)
-        button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 12
-        button.backgroundColor = .appMainColor
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 14)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(didTapStartPauseButton), for: .touchUpInside)
         return button
     }()
     
@@ -180,12 +197,12 @@ class TimerVC: UIViewController {
         timerLabel.centerInSuperview()
         
         // startPauseButton
-        view.addSubview(startPauseButton)
+        view.addSubview(startPauseTimerButton)
         NSLayoutConstraint.activate([
-            startPauseButton.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
-            startPauseButton.topAnchor.constraint(equalTo: circularProgressBarParentView.bottomAnchor, constant: 40),
-            startPauseButton.widthAnchor.constraint(equalToConstant: 75),
-            startPauseButton.heightAnchor.constraint(equalToConstant: 40)
+            startPauseTimerButton.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
+            startPauseTimerButton.topAnchor.constraint(equalTo: circularProgressBarParentView.bottomAnchor, constant: 40),
+            startPauseTimerButton.widthAnchor.constraint(equalToConstant: 75),
+            startPauseTimerButton.heightAnchor.constraint(equalToConstant: 40)
         ])
         
         
@@ -193,7 +210,7 @@ class TimerVC: UIViewController {
         view.addSubview(resetButton)
         NSLayoutConstraint.activate([
             resetButton.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
-            resetButton.topAnchor.constraint(equalTo: startPauseButton.bottomAnchor, constant: 15),
+            resetButton.topAnchor.constraint(equalTo: startPauseTimerButton.bottomAnchor, constant: 15),
             
         ])
         
@@ -210,8 +227,8 @@ class TimerVC: UIViewController {
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: resetButton.bottomAnchor, constant: 15),
             stackView.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
-            stackView.leadingAnchor.constraint(equalTo: startPauseButton.leadingAnchor, constant: 5),
-            stackView.trailingAnchor.constraint(equalTo: startPauseButton.trailingAnchor, constant: -5),
+            stackView.leadingAnchor.constraint(equalTo: startPauseTimerButton.leadingAnchor, constant: 5),
+            stackView.trailingAnchor.constraint(equalTo: startPauseTimerButton.trailingAnchor, constant: -5),
             stackView.heightAnchor.constraint(equalToConstant: 10)
         ])
         
@@ -239,7 +256,7 @@ class TimerVC: UIViewController {
         // align to the center of the screen
         circularProgressBarView.center = circularProgressBarParentView.center
         // call the animation with circularViewDuration
-        circularProgressBarView.progressAnimation(duration: circularViewDuration)
+//        circularProgressBarView.progressAnimation(duration: circularViewDuration)
         // add this view to the view controller
         view.addSubview(circularProgressBarView)
     }
@@ -262,8 +279,40 @@ class TimerVC: UIViewController {
     }
     
     
+    func configureStartPauseTimerButton(using status: TimerStatus) {
+        switch status {
+        case .active:
+            
+            changeButtonAppearance(with: TimerButtonTitle.pause, titleColor: .gray, backgroundColor: .appMilkyColor)
+
+        case .onHold:
+
+            changeButtonAppearance(with: TimerButtonTitle.resume, titleColor: .white, backgroundColor: .appMainColor)
+
+        case .inactive:
+
+            changeButtonAppearance(with: TimerButtonTitle.start, titleColor: .white, backgroundColor: .appMainColor)
+        }
+    }
     
-    //MARK: - Target Selector
+    
+    
+    func changeButtonAppearance(with title: String, titleColor: UIColor, backgroundColor: UIColor) {
+        startPauseTimerButton.setTitle(title, for: .normal)
+        startPauseTimerButton.setTitleColor(titleColor, for: .normal)
+        startPauseTimerButton.backgroundColor = backgroundColor
+    }
+
+}
+
+
+
+
+
+//MARK: - Actions
+extension TimerVC {
+    
+    
     @objc fileprivate func didTapTasksButton() {
         let taskVC = TaskVC()
         let navVC = UINavigationController(rootViewController: taskVC)
@@ -275,9 +324,55 @@ class TimerVC: UIViewController {
         let settingsVC = SettingsVC()
         present(settingsVC, animated: true)
     }
+    
+    @objc fileprivate func didTapStartPauseButton() {
+       handleStartPauseButtonActions(basedOn: currentTimerStatus)
+    }
+    
+    
+     func handleStartPauseButtonActions(basedOn currentTimerStatus: TimerStatus) {
+        switch currentTimerStatus {
+        case .active:
+            pauseTimer()
+        case .onHold, .inactive:
+            startTimer()
+        }
+    }
+    
+    
+    fileprivate func startTimer() {
+        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(timeTicking), userInfo: nil, repeats: true)
+        currentTimerStatus = .active
+    }
+    
+    
+    fileprivate func pauseTimer() {
+        timer?.invalidate()
+        timer = nil
+        currentTimerStatus = .onHold
+    }
+    
+    
+    
+    @objc fileprivate func timeTicking() {
+        elapsedTimeInSeconds += 1
+        let maxTimeDuration = focusDurationInMinutes * 60
+        let progress = CGFloat(elapsedTimeInSeconds) / CGFloat(maxTimeDuration)
+        circularProgressBarView.progressLayer.strokeEnd = 1 - progress
+        if maxTimeDuration == elapsedTimeInSeconds {
+            timer?.invalidate()
+        }
 
+        print("progress: ", 1 - progress)
+        print("elapsedTime: ", elapsedTimeInSeconds)
+        
+    }
+    
+    
+    
+
+    
 }
-
 
 
 class UILabelWithInsets : UILabel {
@@ -300,5 +395,6 @@ class UILabelWithInsets : UILabel {
         
     }
 }
+
 
 
