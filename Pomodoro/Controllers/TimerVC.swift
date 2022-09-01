@@ -28,7 +28,7 @@ class TimerVC: UIViewController {
     let currentModeButtonColor = UIColor.appMainColor.withAlphaComponent(0.4)
     fileprivate(set) var timer: Timer?
     
-    fileprivate var elapsedTimeInSeconds = 0
+    fileprivate(set) var elapsedTimeInSeconds = 0
     
     fileprivate var elapsedTimeInMinutes: CGFloat {
         get {
@@ -36,7 +36,7 @@ class TimerVC: UIViewController {
         }
     }
     
-    fileprivate var focusDurationInMinutes = 1
+    fileprivate var focusDurationInMinutes = 10
     
     fileprivate(set) var currentTimerStatus: TimerStatus = .inactive {
         didSet {
@@ -113,7 +113,7 @@ class TimerVC: UIViewController {
         return view
     }()
     
-    fileprivate let circularProgressBarView = CircularProgressBarView(frame: .zero)
+    fileprivate(set) lazy var circularProgressBarView = CircularProgressBarView(frame: .zero)
     fileprivate var circularViewDuration: TimeInterval = 5
 
     
@@ -129,26 +129,22 @@ class TimerVC: UIViewController {
     
     
     // reset button
-    fileprivate let resetButton: UIButton = {
+    fileprivate(set) lazy var resetTimerBtn: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Reset", for: .normal)
         button.setTitleColor(.lightGray, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 15)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(didTapResetTimerBtn), for: .touchUpInside)
         return button
     }()
     
     
-    fileprivate let timerLabel: UILabel = {
+    fileprivate(set) lazy var timerLabel: UILabel = {
         let label = UILabel()
         label.textColor = .appMainColor
         label.numberOfLines = 0
         label.textAlignment = .center
-        let attributedText = NSMutableAttributedString(string: "7 \n", attributes: [NSAttributedString.Key.foregroundColor : UIColor.appMainColor, NSAttributedString.Key.font : UIFont.systemFont(ofSize: 40, weight: .heavy)])
-        
-        attributedText.append(NSMutableAttributedString(string: "minutes", attributes: [NSAttributedString.Key.foregroundColor : UIColor.appMainColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)]))
-        label.attributedText = attributedText
-        
         return label
     }()
     
@@ -207,10 +203,10 @@ class TimerVC: UIViewController {
         
         
         // resetButton
-        view.addSubview(resetButton)
+        view.addSubview(resetTimerBtn)
         NSLayoutConstraint.activate([
-            resetButton.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
-            resetButton.topAnchor.constraint(equalTo: startPauseTimerButton.bottomAnchor, constant: 15),
+            resetTimerBtn.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
+            resetTimerBtn.topAnchor.constraint(equalTo: startPauseTimerButton.bottomAnchor, constant: 15),
             
         ])
         
@@ -225,7 +221,7 @@ class TimerVC: UIViewController {
         
         view.addSubview(stackView)
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: resetButton.bottomAnchor, constant: 15),
+            stackView.topAnchor.constraint(equalTo: resetTimerBtn.bottomAnchor, constant: 15),
             stackView.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
             stackView.leadingAnchor.constraint(equalTo: startPauseTimerButton.leadingAnchor, constant: 5),
             stackView.trailingAnchor.constraint(equalTo: startPauseTimerButton.trailingAnchor, constant: -5),
@@ -246,9 +242,17 @@ class TimerVC: UIViewController {
         view.addSubview(settingsButton)
         settingsButton.anchor(top: nil, leading: nil, bottom: view.safeAreaLayoutGuide.bottomAnchor, trailing: view.trailingAnchor, padding: .init(top: 0, left: 0, bottom: yAxisPadding, right: xAxisPadding), size: .init(width: taskButtonDimen, height: taskButtonDimen))
         
+        setUpFocusTimerMinutesLabel()
         
     }
     
+    
+    fileprivate func setUpFocusTimerMinutesLabel() {
+        let attributedText = NSMutableAttributedString(string: "\(focusDurationInMinutes)\n", attributes: [NSAttributedString.Key.foregroundColor : UIColor.appMainColor, NSAttributedString.Key.font : UIFont.systemFont(ofSize: 40, weight: .heavy)])
+        
+        attributedText.append(NSMutableAttributedString(string: "minutes", attributes: [NSAttributedString.Key.foregroundColor : UIColor.appMainColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)]))
+        timerLabel.attributedText = attributedText
+    }
     
     
     func setUpCircularProgressBarView() {
@@ -297,7 +301,7 @@ class TimerVC: UIViewController {
     
     
     
-    func changeButtonAppearance(with title: String, titleColor: UIColor, backgroundColor: UIColor) {
+   fileprivate func changeButtonAppearance(with title: String, titleColor: UIColor, backgroundColor: UIColor) {
         startPauseTimerButton.setTitle(title, for: .normal)
         startPauseTimerButton.setTitleColor(titleColor, for: .normal)
         startPauseTimerButton.backgroundColor = backgroundColor
@@ -347,11 +351,15 @@ extension TimerVC {
     
     
     fileprivate func pauseTimer() {
-        timer?.invalidate()
-        timer = nil
+        invalidateTimer()
         currentTimerStatus = .onHold
     }
     
+    
+    fileprivate func invalidateTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
     
     
     @objc fileprivate func timeTicking() {
@@ -370,6 +378,12 @@ extension TimerVC {
     
     
     
+    @objc fileprivate func didTapResetTimerBtn() {
+        invalidateTimer()
+        currentTimerStatus = .inactive
+        elapsedTimeInSeconds = 0
+        circularProgressBarView.progressLayer.strokeEnd = 1.0
+    }
 
     
 }

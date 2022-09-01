@@ -19,9 +19,9 @@ class TimerVCTests: XCTestCase {
     override func tearDownWithError() throws {
         sut = nil
     }
-
-   
     
+   
+    //MARK: - startPauseTimerButton
     func testStartPauseButton_HasAction() throws {
         let startPauseButton = sut.startPauseTimerButton
         
@@ -123,5 +123,46 @@ class TimerVCTests: XCTestCase {
         XCTAssertEqual(self.sut.currentTimerStatus, .active, "currentTimerStatus was not updated to reflect the new status of active")
     }
 
+    
+    
+    func testResetTimerButton_HasAction() throws {
+        
+        let resetTimerBtn = sut.resetTimerBtn
+        
+        let resetTimerBtnActions = try XCTUnwrap(resetTimerBtn.actions(forTarget: sut, forControlEvent: .touchUpInside), "resetTimerBtn has no actions assigned to it")
+        XCTAssertEqual(resetTimerBtnActions.count, 1)
+        XCTAssertTrue(resetTimerBtnActions.contains("didTapResetTimerBtn"), "There is no action with the name didTapResetTimerBtn assigned to resetTimerBtn")
+    }
+    
+    
+    func testResetTimerBtn_ResetsTimer_WhenTapped() {
+        
+        // start timer
+        let startPauseButton = sut.startPauseTimerButton
+        startPauseButton.sendActions(for: .touchUpInside)
+        
+        let expectation = expectation(description: "Wait split second to pause timer")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            
+            let resetTimerBtn = self.sut.resetTimerBtn
+            resetTimerBtn.sendActions(for: .touchUpInside)
+
+            
+            expectation.fulfill()
+
+        }
+        
+        wait(for: [expectation], timeout: 2.0)
+        
+        // assertions
+        XCTAssertNil(sut.timer, "Timer was not removed when reset action happened")
+        XCTAssertEqual(sut.currentTimerStatus, .inactive, "currentTimerStatus was not updated to inactive upon timer reset action")
+        XCTAssertEqual(sut.elapsedTimeInSeconds, 0, "elapsedTimeInSeconds was not resetted to 0")
+        XCTAssertEqual(sut.circularProgressBarView.progressLayer.strokeEnd, 1, "circularProgressBarView's progressLayer  was not resetted to 1.0")
+        
+
+        
+    }
+    
     
 }
