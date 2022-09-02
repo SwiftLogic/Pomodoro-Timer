@@ -165,4 +165,69 @@ class TimerVCTests: XCTestCase {
     }
     
     
+    
+    func testOnTimerCompletionResetViewStateToInactiveTimer()  {
+
+        // start timer
+        let startPauseButton = sut.startPauseTimerButton
+        sut.focusDurationInMinutes = 1
+        sut.minutesToSecondsMultiplier = 1
+        startPauseButton.sendActions(for: .touchUpInside)
+
+        let expectation = expectation(description: "Wait for timer completion")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+
+            expectation.fulfill()
+
+        }
+
+        wait(for: [expectation], timeout: 3.0)
+
+        XCTAssertNil(sut.timer, "Timer was not deallocated from memory")
+        XCTAssertEqual(sut.currentTimerStatus, .inactive, "currentTimerStatus was not updated to inactive upon timer completion")
+        XCTAssertEqual(sut.elapsedTimeInSeconds, 0, "elapsedTimeInSeconds was not resetted to 0")
+        XCTAssertEqual(sut.circularProgressBarView.progressLayer.strokeEnd, 1, "circularProgressBarView's progressLayer  was not resetted to 1.0")
+        
+        XCTAssertEqual(sut.focusDurationInMinutes, sut.shortRestDurationInMinutes, "the sut's focusDurationInMinutes was not set to short break mins after timer completion")
+        
+        XCTAssertEqual(sut.circularProgressBarView.progressLayer.strokeColor, UIColor.appGrayColor.cgColor, "progressLayer color was not set to right color")
+       
+
+    }
+    
+    
+    func testOnTimerCompletionPlayCompletionSound() {
+        // assert completion sound
+        
+        // assert progress stroke color and text colors
+        
+    }
+    
+    
+    func testOnTimerCompletionResetPomodoroStateToShortBreak() {
+        // asserts on timer completion pomodoro state is changed to appropriate break mode
+        
+        let startPauseButton = sut.startPauseTimerButton
+        sut.focusDurationInMinutes = 1
+        sut.minutesToSecondsMultiplier = 1
+        startPauseButton.sendActions(for: .touchUpInside)
+
+        let expectation = expectation(description: "Wait for timer completion")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+
+            expectation.fulfill()
+
+        }
+
+        wait(for: [expectation], timeout: 3.0)
+        
+        XCTAssertEqual(sut.pomodoroSessionType, .shortBreak)
+    }
+    
+    
+    
+    func testPomodoroState() {
+        
+    }
+    
 }

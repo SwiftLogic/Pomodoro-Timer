@@ -15,7 +15,7 @@ class TimerVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setUpViews()
-        configureStartPauseTimerButton(using: .inactive)
+        setUpInitalState()
     }
 
     
@@ -30,13 +30,25 @@ class TimerVC: UIViewController {
     
     fileprivate(set) var elapsedTimeInSeconds = 0
     
+    fileprivate(set) var shortRestDurationInMinutes = 3
+    
     fileprivate var elapsedTimeInMinutes: CGFloat {
         get {
             return CGFloat(elapsedTimeInSeconds / 60)
         }
     }
     
-    fileprivate var focusDurationInMinutes = 10
+    var focusDurationInMinutes = 1 {
+        didSet {
+            let color = pomodoroSessionType == .work ? UIColor.appMainColor : UIColor.appGrayColor
+            setUpFocusTimerMinutesLabel(color: color)
+        }
+    }
+    
+    
+    var pomodoroSessionType: PomodoroSessionType = .work
+    
+    var minutesToSecondsMultiplier = 60
     
     fileprivate(set) var currentTimerStatus: TimerStatus = .inactive {
         didSet {
@@ -157,6 +169,13 @@ class TimerVC: UIViewController {
     
     
     //MARK: - Methods
+    fileprivate func setUpInitalState() {
+        circularProgressBarView.progressLayer.strokeColor = UIColor.appGrayColor.cgColor
+        setUpFocusTimerMinutesLabel(color: .appGrayColor)
+        configureStartPauseTimerButton(using: .inactive)
+    }
+    
+    
     fileprivate func setUpViews() {
         
         // selectionTypeButton
@@ -242,15 +261,14 @@ class TimerVC: UIViewController {
         view.addSubview(settingsButton)
         settingsButton.anchor(top: nil, leading: nil, bottom: view.safeAreaLayoutGuide.bottomAnchor, trailing: view.trailingAnchor, padding: .init(top: 0, left: 0, bottom: yAxisPadding, right: xAxisPadding), size: .init(width: taskButtonDimen, height: taskButtonDimen))
         
-        setUpFocusTimerMinutesLabel()
-        
+
     }
     
     
-    fileprivate func setUpFocusTimerMinutesLabel() {
-        let attributedText = NSMutableAttributedString(string: "\(focusDurationInMinutes)\n", attributes: [NSAttributedString.Key.foregroundColor : UIColor.appMainColor, NSAttributedString.Key.font : UIFont.systemFont(ofSize: 40, weight: .heavy)])
+    fileprivate func setUpFocusTimerMinutesLabel(color: UIColor) {
+        let attributedText = NSMutableAttributedString(string: "\(focusDurationInMinutes)\n", attributes: [NSAttributedString.Key.foregroundColor : color, NSAttributedString.Key.font : UIFont.systemFont(ofSize: 40, weight: .heavy)])
         
-        attributedText.append(NSMutableAttributedString(string: "minutes", attributes: [NSAttributedString.Key.foregroundColor : UIColor.appMainColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)]))
+        attributedText.append(NSMutableAttributedString(string: "minutes", attributes: [NSAttributedString.Key.foregroundColor : color, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)]))
         timerLabel.attributedText = attributedText
     }
     
@@ -364,11 +382,14 @@ extension TimerVC {
     
     @objc fileprivate func timeTicking() {
         elapsedTimeInSeconds += 1
-        let maxTimeDuration = focusDurationInMinutes * 60
-        let progress = CGFloat(elapsedTimeInSeconds) / CGFloat(maxTimeDuration)
+        let duration = focusDurationInMinutes * minutesToSecondsMultiplier
+        let progress = CGFloat(elapsedTimeInSeconds) / CGFloat(duration)
         circularProgressBarView.progressLayer.strokeEnd = 1 - progress
-        if maxTimeDuration == elapsedTimeInSeconds {
-            timer?.invalidate()
+        if duration == elapsedTimeInSeconds {
+            didTapResetTimerBtn()
+            focusDurationInMinutes = shortRestDurationInMinutes
+            circularProgressBarView.progressLayer.strokeColor = UIColor.appGrayColor.cgColor
+            pomodoroSessionType = .shortBreak
         }
 
         print("progress: ", 1 - progress)
@@ -388,6 +409,10 @@ extension TimerVC {
     
 }
 
+
+enum PomodoroSessionType {
+    case work, shortBreak, longBreak
+}
 
 class UILabelWithInsets : UILabel {
     var textInsets = UIEdgeInsets.zero {
