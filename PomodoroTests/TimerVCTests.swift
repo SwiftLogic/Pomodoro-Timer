@@ -35,7 +35,7 @@ class TimerVCTests: XCTestCase {
     
     func testStartPauseButtonConfig_WhenTimeIs_InActive() {
         let startPauseButton = sut.startPauseTimerButton
-        sut.configureStartPauseTimerButton(using: .inactive)
+        sut.configureUIAppearance(for: .inactive)
         let expectedBackgroundColor = UIColor.appMainColor
         let expectedTextColor = UIColor.white
         let expectedTitle = TimerButtonTitle.start
@@ -51,10 +51,24 @@ class TimerVCTests: XCTestCase {
     }
     
     
+    func testProgressViewColors_WhenTimeIs_InActive() {
+        //Arrange
+        let expectedColor = UIColor.appGrayColor
+        let progressView = sut.circularProgressBarView.progressLayer
+        
+        //Act
+        sut.configureUIAppearance(for: .inactive)
+
+        //Assert
+        XCTAssertEqual(progressView.strokeColor, expectedColor.cgColor, "progressView strokeColor does not match the expectedTextColor")
+        
+        XCTAssertEqual(sut.timerLabel.textColor, expectedColor, "timerLabel textColor does not match expectedColor")
+    }
+    
     
     func testStartPauseButtonConfig_WhenTimerIsActive() {
         let startPauseButton = sut.startPauseTimerButton
-        sut.configureStartPauseTimerButton(using: .active)
+        sut.configureUIAppearance(for: .active)
         let expectedBackgroundColor = UIColor.appMilkyColor
         let expectedTextColor = UIColor.gray
         let expectedTitle = TimerButtonTitle.pause
@@ -69,9 +83,37 @@ class TimerVCTests: XCTestCase {
     }
     
     
+    func testLabelAndCircularProgressViewColors_WhenTimerIsActive() {
+        
+        
+        //Arrange
+        let startPauseButton = sut.startPauseTimerButton
+        let expectedColor = UIColor.appMainColor
+        let progressView = sut.circularProgressBarView.progressLayer
+        
+        let expectation = expectation(description: "wait for timer to tick")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            expectation.fulfill()
+        }
+        
+        //Act
+        startPauseButton.sendActions(for: .touchUpInside)
+        wait(for: [expectation], timeout: 0.2)
+
+        //Assert
+        XCTAssertEqual(progressView.strokeColor, expectedColor.cgColor, "progressView strokeColor does not match the expectedTextColor")
+        
+        XCTAssertEqual(sut.timerLabel.textColor, expectedColor, "timerLabel textColor does not match expectedColor")
+        
+    }
+    
+    
+    
+    
     func testStartPauseButtonConfigWhenTimeIs_onHold() {
         let startPauseButton = sut.startPauseTimerButton
-        sut.configureStartPauseTimerButton(using: .onHold)
+        sut.configureUIAppearance(for: .onHold)
         let expectedBackgroundColor = UIColor.appMainColor
         let expectedTextColor = UIColor.white
         let expectedTitle = TimerButtonTitle.resume
@@ -82,6 +124,20 @@ class TimerVCTests: XCTestCase {
         
 
         XCTAssertEqual(startPauseButton.titleLabel?.text, expectedTitle, "startPauseButton titleLabelText does not match the expectedTitle")
+    }
+    
+    func testLabelAndCircularProgressViewColors_WhenTimerOnHold() {
+        //Arrange
+        let expectedColor = UIColor.appGrayColor
+        let progressView = sut.circularProgressBarView.progressLayer
+        
+        //Act
+        sut.configureUIAppearance(for: .onHold)
+
+        //Assert
+        XCTAssertEqual(progressView.strokeColor, expectedColor.cgColor, "progressView strokeColor does not match the expectedTextColor")
+        
+        XCTAssertEqual(sut.timerLabel.textColor, expectedColor, "timerLabel textColor does not match expectedColor")
     }
     
     
@@ -160,7 +216,6 @@ class TimerVCTests: XCTestCase {
         XCTAssertEqual(sut.elapsedTimeInSeconds, 0, "elapsedTimeInSeconds was not resetted to 0")
         XCTAssertEqual(sut.circularProgressBarView.progressLayer.strokeEnd, 1, "circularProgressBarView's progressLayer  was not resetted to 1.0")
         
-
         
     }
     
@@ -226,7 +281,17 @@ class TimerVCTests: XCTestCase {
     
     
     
-    func testPomodoroState() {
+    func testPomodoroWorkState() {
+         
+    }
+    
+    
+    func testPomodoroShortBreakState() {
+        
+    }
+    
+    
+    func testPomodoroLongBreakState() {
         
     }
     

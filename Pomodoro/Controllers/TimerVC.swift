@@ -38,13 +38,7 @@ class TimerVC: UIViewController {
         }
     }
     
-    var focusDurationInMinutes = 1 {
-        didSet {
-            let color = pomodoroSessionType == .work ? UIColor.appMainColor : UIColor.appGrayColor
-            setUpFocusTimerMinutesLabel(color: color)
-        }
-    }
-    
+    var focusDurationInMinutes = 1
     
     var pomodoroSessionType: PomodoroSessionType = .work
     
@@ -52,7 +46,7 @@ class TimerVC: UIViewController {
     
     fileprivate(set) var currentTimerStatus: TimerStatus = .inactive {
         didSet {
-            configureStartPauseTimerButton(using: currentTimerStatus)
+            configureUIAppearance(for: currentTimerStatus)
         }
     }
 
@@ -154,7 +148,6 @@ class TimerVC: UIViewController {
     
     fileprivate(set) lazy var timerLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .appMainColor
         label.numberOfLines = 0
         label.textAlignment = .center
         return label
@@ -170,9 +163,7 @@ class TimerVC: UIViewController {
     
     //MARK: - Methods
     fileprivate func setUpInitalState() {
-        circularProgressBarView.progressLayer.strokeColor = UIColor.appGrayColor.cgColor
-        setUpFocusTimerMinutesLabel(color: .appGrayColor)
-        configureStartPauseTimerButton(using: .inactive)
+        configureUIAppearance(for: .inactive)
     }
     
     
@@ -301,19 +292,31 @@ class TimerVC: UIViewController {
     }
     
     
-    func configureStartPauseTimerButton(using status: TimerStatus) {
+    func configureUIAppearance(for status: TimerStatus) {
         switch status {
         case .active:
             
             changeButtonAppearance(with: TimerButtonTitle.pause, titleColor: .gray, backgroundColor: .appMilkyColor)
+            
+            circularProgressBarView.progressLayer.strokeColor = UIColor.appMainColor.cgColor
+
+            setUpFocusTimerMinutesLabel(color: .appMainColor)
 
         case .onHold:
 
             changeButtonAppearance(with: TimerButtonTitle.resume, titleColor: .white, backgroundColor: .appMainColor)
+            
+            circularProgressBarView.progressLayer.strokeColor = UIColor.appGrayColor.cgColor
+
+            setUpFocusTimerMinutesLabel(color: .appGrayColor)
 
         case .inactive:
 
             changeButtonAppearance(with: TimerButtonTitle.start, titleColor: .white, backgroundColor: .appMainColor)
+            
+            circularProgressBarView.progressLayer.strokeColor = UIColor.appGrayColor.cgColor
+
+            setUpFocusTimerMinutesLabel(color: .appGrayColor)
         }
     }
     
@@ -385,19 +388,24 @@ extension TimerVC {
         let duration = focusDurationInMinutes * minutesToSecondsMultiplier
         let progress = CGFloat(elapsedTimeInSeconds) / CGFloat(duration)
         circularProgressBarView.progressLayer.strokeEnd = 1 - progress
+        
         if duration == elapsedTimeInSeconds {
-            didTapResetTimerBtn()
-            focusDurationInMinutes = shortRestDurationInMinutes
-            circularProgressBarView.progressLayer.strokeColor = UIColor.appGrayColor.cgColor
-            pomodoroSessionType = .shortBreak
+           onTimerCompletion()
         }
 
-        print("progress: ", 1 - progress)
-        print("elapsedTime: ", elapsedTimeInSeconds)
+//        print("progress: ", 1 - progress)
+//        print("elapsedTime: ", elapsedTimeInSeconds)
         
     }
     
     
+    
+    fileprivate func onTimerCompletion() {
+        didTapResetTimerBtn()
+        focusDurationInMinutes = shortRestDurationInMinutes
+        circularProgressBarView.progressLayer.strokeColor = UIColor.appGrayColor.cgColor
+        pomodoroSessionType = .shortBreak
+    }
     
     @objc fileprivate func didTapResetTimerBtn() {
         invalidateTimer()
