@@ -38,15 +38,14 @@ class TimerVC: UIViewController {
     }
     
     lazy var currentTimerDuration = focusDurationInMinutes
-    var focusDurationInMinutes = 6
-    fileprivate(set) var shortRestDurationInMinutes = 2
+    var focusDurationInMinutes = 3
+    fileprivate(set) var shortRestDurationInMinutes = 1
+    fileprivate(set) var longBreakDurationInMinutes = 4
 
-    var completedFocusSessions: FocusSession = .noSession
-
-    
+    var nextFocusBlock: FocusSession = .firstSession
     var pomodoroSessionType: PomodoroSessionType = .work
     
-    var minutesToSecondsMultiplier = 1//60
+    var minutesToSecondsMultiplier = 60
     
     fileprivate(set) var currentTimerStatus: TimerStatus = .inactive {
         didSet {
@@ -270,12 +269,7 @@ class TimerVC: UIViewController {
     
     
     func setUpCircularProgressBarView() {
-        // set view
-        // align to the center of the screen
         circularProgressBarView.center = circularProgressBarParentView.center
-        // call the animation with circularViewDuration
-//        circularProgressBarView.progressAnimation(duration: circularViewDuration)
-        // add this view to the view controller
         view.addSubview(circularProgressBarView)
     }
     
@@ -440,18 +434,38 @@ extension TimerVC {
     
      func onTimerCompletion() {
         didTapResetTimerBtn()
-        circularProgressBarView.progressLayer.strokeColor = UIColor.appGrayColor.cgColor
-        
-        if pomodoroSessionType == .work {
-            pomodoroSessionType = .shortBreak
-            currentTimerDuration = shortRestDurationInMinutes
-            updateCompletedSession(for: completedFocusSessions)
-            
-        } else {
-            pomodoroSessionType = .work
-            currentTimerDuration = focusDurationInMinutes
-        }
          
+        circularProgressBarView.progressLayer.strokeColor = UIColor.appGrayColor.cgColor
+         
+         switch pomodoroSessionType {
+             
+         case .work:
+            //  work focus session completed
+             let session = nextFocusBlock
+             pomodoroSessionType = session == .fourthSession ? .longBreak : .shortBreak
+             currentTimerDuration = session == .fourthSession ? longBreakDurationInMinutes : shortRestDurationInMinutes
+             updateCompletedSession(for: nextFocusBlock)
+
+         case .shortBreak:
+             //  shorbreak completed
+
+             pomodoroSessionType = .work
+             currentTimerDuration = focusDurationInMinutes
+             
+        case .longBreak:
+             
+             //  longBreak completed
+             pomodoroSessionType = .work
+             currentTimerDuration = focusDurationInMinutes
+             
+             let labels = [firstSessionLabel, secondSessionLabel, thirdSessionLabel, fourthSessionLabel]
+             
+             for label in labels {
+                 update(label, backgroundColor: .clear, textColor: .gray)
+             }
+             
+         }
+
          changePomodoroStateBtn.setTitle(pomodoroSessionType.description, for: .normal)
          setUpFocusTimerMinutesLabel(color: .appGrayColor)
 
@@ -467,27 +481,29 @@ extension TimerVC {
     
     
     
-    fileprivate func updateCompletedSession(for currentSession: FocusSession) {
-        switch currentSession {
-        case .noSession:
-            
-            update(firstSessionLabel, backgroundColor: .appMainColor, textColor: .white)
-            completedFocusSessions = .firstSession
-            
+    fileprivate func updateCompletedSession(for nextTimeBlock: FocusSession) {
+        print("currentSession: ", nextTimeBlock, "pomodoroSessionType: ", pomodoroSessionType)
+        switch nextTimeBlock {
         case .firstSession:
             
-            update(secondSessionLabel, backgroundColor: .appMainColor, textColor: .white)
-            completedFocusSessions = .secondSession
-
+            update(firstSessionLabel, backgroundColor: .appMainColor, textColor: .white)
+            nextFocusBlock = .secondSession
+            
         case .secondSession:
             
-            update(thirdSessionLabel, backgroundColor: .appMainColor, textColor: .white)
-            completedFocusSessions = .thirdSession
-            
+            update(secondSessionLabel, backgroundColor: .appMainColor, textColor: .white)
+            nextFocusBlock = .thirdSession
+
         case .thirdSession:
             
+            update(thirdSessionLabel, backgroundColor: .appMainColor, textColor: .white)
+            nextFocusBlock = .fourthSession
+            
+        case .fourthSession:
+            
             update(fourthSessionLabel, backgroundColor: .appMainColor, textColor: .white)
-            completedFocusSessions = .noSession
+            nextFocusBlock = .firstSession
+            
 
        
         }
@@ -520,7 +536,7 @@ enum PomodoroSessionType: CustomStringConvertible {
 
 
 enum FocusSession: Int, CaseIterable {
-    case noSession, firstSession, secondSession, thirdSession
+    case firstSession, secondSession, thirdSession, fourthSession
 }
 
 

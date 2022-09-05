@@ -439,6 +439,7 @@ class TimerVCTests: XCTestCase {
 
         XCTAssertEqual(sut.currentTimerDuration, sut.focusDurationInMinutes, "currentTimerDuration was not set to focusDurationInMinutes")
 
+
     }
     
     
@@ -451,10 +452,11 @@ class TimerVCTests: XCTestCase {
         sut.pomodoroSessionType = .work
         sut.onTimerCompletion()
         
-        XCTAssertEqual(sut.completedFocusSessions, .firstSession, "completedFocusSessions should be 1")
+        XCTAssertEqual(sut.nextFocusBlock, .secondSession, "completedFocusSessions should be 1")
         XCTAssertEqual(firstSessionLabel.backgroundColor, UIColor.appMainColor, "firstSessionLabel backgroundColor should be UIColor.appMainColor")
         XCTAssertEqual(firstSessionLabel.textColor, UIColor.white, "firstSessionLabel textColor should be UIColor.white")
-        
+        XCTAssertEqual(sut.currentTimerDuration, sut.shortRestDurationInMinutes)
+
     }
     
     
@@ -464,13 +466,15 @@ class TimerVCTests: XCTestCase {
 
         // Act
         sut.pomodoroSessionType = .work
-        sut.completedFocusSessions = .firstSession
+        sut.nextFocusBlock = .secondSession
         sut.onTimerCompletion()
         
         // Assert
-        XCTAssertEqual(sut.completedFocusSessions, .secondSession, "completedFocusSessions should be 2")
+        XCTAssertEqual(sut.nextFocusBlock, .thirdSession, "completedFocusSessions should be 2")
         XCTAssertEqual(secondSessionLabel.backgroundColor, UIColor.appMainColor, "secondSessionLabel backgroundColor should be UIColor.appMainColor")
         XCTAssertEqual(secondSessionLabel.textColor, UIColor.white, "secondSessionLabel textColor should be UIColor.white")
+        XCTAssertEqual(sut.currentTimerDuration, sut.shortRestDurationInMinutes)
+
         
     }
     
@@ -482,63 +486,89 @@ class TimerVCTests: XCTestCase {
 
         // Act
         sut.pomodoroSessionType = .work
-        sut.completedFocusSessions = .secondSession
+        sut.nextFocusBlock = .thirdSession
         sut.onTimerCompletion()
         
         // Assert
-        XCTAssertEqual(sut.completedFocusSessions, .thirdSession, "completedFocusSessions should be 3")
+        XCTAssertEqual(sut.nextFocusBlock, .fourthSession, "completedFocusSessions should be 3")
         XCTAssertEqual(thirdSessionLabel.backgroundColor, UIColor.appMainColor, "thirdSessionLabel backgroundColor should be UIColor.appMainColor")
         XCTAssertEqual(thirdSessionLabel.textColor, UIColor.white, "thirdSessionLabel textColor should be UIColor.white")
+        XCTAssertEqual(sut.currentTimerDuration, sut.shortRestDurationInMinutes)
+
+    }
+    
+    
+    func testStoresFourthCompletedFocusSession() {
+        // Arrange
+        let fourthSessionLabel = sut.fourthSessionLabel
+
+        // Act
+        sut.pomodoroSessionType = .work
+        sut.nextFocusBlock = .fourthSession
+        sut.onTimerCompletion()
+        
+        // Assert
+        XCTAssertEqual(sut.nextFocusBlock, .firstSession, "completedFocusSessions should be 1")
+        XCTAssertEqual(fourthSessionLabel.backgroundColor, UIColor.appMainColor, "fourthSessionLabel backgroundColor should be UIColor.appMainColor")
+        XCTAssertEqual(fourthSessionLabel.textColor, UIColor.white, "fourthSessionLabel textColor should be UIColor.white")
+        XCTAssertEqual(sut.currentTimerDuration, sut.longBreakDurationInMinutes)
+
+    }
+    
+    
+    
+    func testLabelResetsAfterFourthBreak() {
+//        // Arrange
+        let firstSessionLabel = sut.firstSessionLabel
+
+        let secondSessionLabel = sut.secondSessionLabel
+
+        let thirdSessionLabel = sut.thirdSessionLabel
+//
+        let fourthSessionLabel = sut.fourthSessionLabel
+
+        // Act
+        sut.pomodoroSessionType = .longBreak
+        sut.nextFocusBlock = .fourthSession
+        
+        sut.startPauseTimerButton.sendActions(for: .touchUpInside)
+        
+        let expectation = expectation(description: "wait for something")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 0.2)
+
+        
+        // Assert
+        
+        XCTAssertEqual(fourthSessionLabel.backgroundColor, UIColor.clear, "fourthSessionLabel backgroundColor should be UIColor.appMainColor")
+        
+        XCTAssertEqual(fourthSessionLabel.textColor, .gray)
+        
+        
+        XCTAssertEqual(firstSessionLabel.backgroundColor, UIColor.clear, "firstSessionLabel backgroundColor should be UIColor.appMainColor")
+        
+        XCTAssertEqual(firstSessionLabel.textColor, .gray)
+        
+        
+        XCTAssertEqual(secondSessionLabel.backgroundColor, UIColor.clear, "secondSessionLabel backgroundColor should be UIColor.appMainColor")
+        
+        XCTAssertEqual(secondSessionLabel.textColor, .gray)
+        
+        
+        XCTAssertEqual(thirdSessionLabel.backgroundColor, UIColor.clear, "thirdSessionLabel backgroundColor should be UIColor.appMainColor")
+        
+        XCTAssertEqual(thirdSessionLabel.textColor, .gray)
+        
         
     }
     
     
-//    func testStoresFourthCompletedFocusSession() {
-//        // Arrange
-//        let fourthSessionLabel = sut.fourthSessionLabel
-//
-//        // Act
-//        sut.pomodoroSessionType = .work
-//        sut.completedFocusSessions = .thirdSession
-//        sut.onTimerCompletion()
-//        
-//        // Assert
-//        XCTAssertEqual(sut.completedFocusSessions, .noSession, "completedFocusSessions should be noSession")
-////        XCTAssertEqual(fourthSessionLabel.backgroundColor, UIColor.appMainColor, "fourthSessionLabel backgroundColor should be UIColor.appMainColor")
-////        XCTAssertEqual(fourthSessionLabel.textColor, UIColor.white, "fourthSessionLabel textColor should be UIColor.white")
-//        
-//    }
     
     
-    
-    
-//    func testPomodoState_ChangesToLongBreak_Upon4FocusSessions() {
-//        // Act
-//        sut.pomodoroSessionType = .work
-//        sut.onTimerCompletion()
-//
-//        // Assert
-//        XCTAssertEqual(sut.pomodoroSessionType, .work, "Pomodoro state was not changed from shortbreak to work on short break timer completion")
-//        XCTAssertEqual(sut.changePomodoroStateBtn.title(for: .normal), PomodoroSessionType.work.description)
-//
-//    }
-    
-//    func testOnTimeBreakCompletionTimerDurationEqualsFocusDuration() {
-//
-//        sut.startPauseTimerButton.sendActions(for: .touchUpInside)
-//
-//        let expectation = expectation(description: "wait for something")
-//
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//            expectation.fulfill()
-//        }
-//
-//        wait(for: [expectation], timeout: 0.2)
-//
-//
-//        XCTAssertEqual(sut.currentTimerDuration, sut.focusDurationInMinutes)
-//    }
-//
     
     func testPomodoroShortBreakState() {
         
@@ -560,3 +590,6 @@ class TimerVCTests: XCTestCase {
     }
     
 }
+
+
+
