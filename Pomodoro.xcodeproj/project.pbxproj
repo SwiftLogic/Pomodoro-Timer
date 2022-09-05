@@ -19,6 +19,8 @@
 		E941ECBD2882550D005A9077 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E941ECBB2882550D005A9077 /* LaunchScreen.storyboard */; };
 		E941ECC6288256E9005A9077 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E941ECC5288256E9005A9077 /* Utils.swift */; };
 		E941ECC8288257AB005A9077 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E941ECC7288257AB005A9077 /* Constants.swift */; };
+		E968697328C6842200E0E323 /* FocusSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = E968697228C6842200E0E323 /* FocusSession.swift */; };
+		E968697528C6844600E0E323 /* PomodoroSessionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = E968697428C6844600E0E323 /* PomodoroSessionType.swift */; };
 		E9697C1C28902CB90041C045 /* TaskVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9697C1B28902CB90041C045 /* TaskVC.swift */; };
 		E9697C1E28902E4D0041C045 /* VCPreviewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9697C1D28902E4D0041C045 /* VCPreviewer.swift */; };
 		E9697C2028903F810041C045 /* TaskCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9697C1F28903F810041C045 /* TaskCell.swift */; };
@@ -59,6 +61,8 @@
 		E941ECBE2882550D005A9077 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E941ECC5288256E9005A9077 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		E941ECC7288257AB005A9077 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		E968697228C6842200E0E323 /* FocusSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusSession.swift; sourceTree = "<group>"; };
+		E968697428C6844600E0E323 /* PomodoroSessionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroSessionType.swift; sourceTree = "<group>"; };
 		E9697C1B28902CB90041C045 /* TaskVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskVC.swift; sourceTree = "<group>"; };
 		E9697C1D28902E4D0041C045 /* VCPreviewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VCPreviewer.swift; sourceTree = "<group>"; };
 		E9697C1F28903F810041C045 /* TaskCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCell.swift; sourceTree = "<group>"; };
@@ -145,6 +149,8 @@
 			isa = PBXGroup;
 			children = (
 				E981E5AC28C175AF00983A4D /* TimerStatus.swift */,
+				E968697228C6842200E0E323 /* FocusSession.swift */,
+				E968697428C6844600E0E323 /* PomodoroSessionType.swift */,
 			);
 			path = Enums;
 			sourceTree = "<group>";
@@ -315,6 +321,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E968697328C6842200E0E323 /* FocusSession.swift in Sources */,
 				E92E462B2899BDBC001C596F /* SettingsVC.swift in Sources */,
 				E96D967428C53AD10075C1AE /* AppConstant.swift in Sources */,
 				E99DA5602894BFFD004B9298 /* AddNewTaskView.swift in Sources */,
@@ -331,6 +338,7 @@
 				E941ECB12882550A005A9077 /* AppDelegate.swift in Sources */,
 				E981E5AB28C1751D00983A4D /* TimerButtonTitle.swift in Sources */,
 				E941ECB32882550A005A9077 /* SceneDelegate.swift in Sources */,
+				E968697528C6844600E0E323 /* PomodoroSessionType.swift in Sources */,
 				E92E462D2899F7E8001C596F /* SettingsItem.swift in Sources */,
 				E9BACF38288F94BE00FF885E /* CircularProgressBarView.swift in Sources */,
 				E9697C1E28902E4D0041C045 /* VCPreviewer.swift in Sources */,

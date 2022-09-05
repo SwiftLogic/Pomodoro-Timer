@@ -345,24 +345,21 @@ extension TimerVC {
     @objc fileprivate func didTapChangePomodoroStateBtn() {
         let alertVC = UIAlertController(title: AppConstant.pomodoAlertVCTTitle, message: AppConstant.pomodoAlertVCMessage, preferredStyle: .actionSheet)
         
-        let workAction = UIAlertAction(title: PomodoroSessionType.work.description, style: .default) { _ in
-            print("work session tapped")
+        let workAction = UIAlertAction(title: PomodoroSessionType.work.description, style: .default) {[weak self] _ in
+            self?.changePomodoroState(to: .work)
         }
         
         
-        let shortBreakAction = UIAlertAction(title: PomodoroSessionType.shortBreak.description, style: .default) { _ in
-            print("shortBreakAction tapped")
+        let shortBreakAction = UIAlertAction(title: PomodoroSessionType.shortBreak.description, style: .default) {[weak self] _ in
+            self?.changePomodoroState(to: .shortBreak)
         }
         
         
-        let longBreakAction = UIAlertAction(title: PomodoroSessionType.shortBreak.description, style: .default) { _ in
-            print("longBreakAction tapped")
+        let longBreakAction = UIAlertAction(title: PomodoroSessionType.longBreak.description, style: .default) {[weak self] _ in
+            self?.changePomodoroState(to: .longBreak)
         }
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
-            print("longBreakAction tapped")
-        }
-        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in}
         alertVC.addAction(workAction)
         alertVC.addAction(shortBreakAction)
         alertVC.addAction(longBreakAction)
@@ -371,6 +368,43 @@ extension TimerVC {
         present(alertVC, animated: true)
 
     }
+    
+    
+    func changePomodoroState(to pomodoroState: PomodoroSessionType) {
+        switch pomodoroState {
+        case .work:
+            
+            changePomodoroStateBtn.setTitle(PomodoroSessionType.work.description, for: .normal)
+            pomodoroSessionType = .work
+            currentTimerDuration = focusDurationInMinutes
+            setUpFocusTimerMinutesLabel(color: .appGrayColor)
+//
+            
+        case .shortBreak: ()
+            
+            changePomodoroStateBtn.setTitle(PomodoroSessionType.shortBreak.description, for: .normal)
+            pomodoroSessionType = .shortBreak
+            currentTimerDuration = shortRestDurationInMinutes
+            setUpFocusTimerMinutesLabel(color: .appGrayColor)
+           
+            
+        case .longBreak:()
+            
+            changePomodoroStateBtn.setTitle(PomodoroSessionType.longBreak.description, for: .normal)
+            pomodoroSessionType = .longBreak
+            currentTimerDuration = longBreakDurationInMinutes
+            setUpFocusTimerMinutesLabel(color: .appGrayColor)
+            
+        }
+        
+        
+        currentTimerStatus = .inactive
+        circularProgressBarView.progressLayer.strokeEnd = 1.0
+        elapsedTimeInSeconds = 0
+        
+    }
+    
+    
     
     
     @objc fileprivate func didTapTasksButton() {
@@ -482,7 +516,7 @@ extension TimerVC {
     
     
     fileprivate func updateCompletedSession(for nextTimeBlock: FocusSession) {
-        print("currentSession: ", nextTimeBlock, "pomodoroSessionType: ", pomodoroSessionType)
+        
         switch nextTimeBlock {
         case .firstSession:
             
@@ -515,28 +549,6 @@ extension TimerVC {
         label.textColor = textColor
     }
     
-}
-
-
-enum PomodoroSessionType: CustomStringConvertible {
-    case work, shortBreak, longBreak
-    
-    var description: String {
-        switch self {
-        case .work:
-            return "Work"
-        case .shortBreak:
-            return "Short Break"
-        case .longBreak:
-            return "Long Break"
-        }
-    }
-}
-
-
-
-enum FocusSession: Int, CaseIterable {
-    case firstSession, secondSession, thirdSession, fourthSession
 }
 
 

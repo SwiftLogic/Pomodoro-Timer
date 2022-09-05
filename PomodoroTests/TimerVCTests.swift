@@ -517,7 +517,7 @@ class TimerVCTests: XCTestCase {
     
     
     
-    func testLabelResetsAfterFourthBreak() {
+    func testSessionLabelsResetsAfterFourthBreak() {
 //        // Arrange
         let firstSessionLabel = sut.firstSessionLabel
 
@@ -568,6 +568,149 @@ class TimerVCTests: XCTestCase {
     
     
     
+    func testChangePomodoroStateFromWork_ToShortBreak() throws {
+        // Arrange
+        let changePomodoroStateBtn = sut.changePomodoroStateBtn
+        
+        let expectedAttributedText = createAttributedText(title: sut.shortRestDurationInMinutes, color: .appGrayColor)
+        
+        // Act
+        sut.changePomodoroState(to: .work)
+        
+        let expectation = expectation(description: "wait for something")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.sut.changePomodoroState(to: .shortBreak)
+
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 2)
+
+        
+        let timerLabelAttributedText = try XCTUnwrap(sut.timerLabel.attributedText, "unable to unwrap timerLabel text")
+
+        
+        // Assert
+        XCTAssertEqual(sut.pomodoroSessionType, .shortBreak, "The current pomodoroSessionType should be shortBreak")
+        
+        XCTAssertEqual(changePomodoroStateBtn.title(for: .normal), PomodoroSessionType.shortBreak.description, "The changePomodoroStateBtn title should be short Break")
+        
+        XCTAssertEqual(sut.currentTimerDuration, sut.shortRestDurationInMinutes, "The currentTimerDuration should be shortRestDurationInMinutes")
+        // assert that label title is accurate
+        XCTAssertEqual(timerLabelAttributedText, expectedAttributedText, "timerLabelAttributedText was not updated")
+        
+        XCTAssertEqual(sut.currentTimerStatus, .inactive, "currentTimerStatus should be inactive")
+        
+        XCTAssertEqual(sut.circularProgressBarView.progressLayer.strokeEnd, 1.0)
+        
+        XCTAssertEqual(sut.elapsedTimeInSeconds, 0)
+        
+        
+        
+    }
+    
+    
+    func testChangePomodoroStateFromShortBreak_ToWork() throws {
+        // Arrange
+        let changePomodoroStateBtn = sut.changePomodoroStateBtn
+        
+        let expectedAttributedText = createAttributedText(title: sut.focusDurationInMinutes, color: .appGrayColor)
+        
+        // Act
+        sut.changePomodoroState(to: .shortBreak)
+
+        let expectation = expectation(description: "wait for something")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.sut.changePomodoroState(to: .work)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 3)
+
+        
+        let timerLabelAttributedText = try XCTUnwrap(sut.timerLabel.attributedText, "unable to unwrap timerLabel text")
+
+        
+        // Assert
+        XCTAssertEqual(sut.pomodoroSessionType, .work, "The current pomodoroSessionType should be work")
+        
+        XCTAssertEqual(changePomodoroStateBtn.title(for: .normal), PomodoroSessionType.work.description, "The changePomodoroStateBtn title should be work")
+        
+        XCTAssertEqual(sut.currentTimerDuration, sut.focusDurationInMinutes, "The currentTimerDuration should be focusDurationInMinutes")
+        // assert that label title is accurate
+        XCTAssertEqual(timerLabelAttributedText, expectedAttributedText, "timerLabelAttributedText was not updated")
+        
+        XCTAssertEqual(sut.currentTimerStatus, .inactive, "currentTimerStatus should be inactive")
+        
+        XCTAssertEqual(sut.circularProgressBarView.progressLayer.strokeEnd, 1.0)
+        
+        XCTAssertEqual(sut.elapsedTimeInSeconds, 0)
+        
+    }
+    
+    
+    func testChangePomodoroStateFromWork_ToLongBreak() throws {
+        // Arrange
+        let changePomodoroStateBtn = sut.changePomodoroStateBtn
+        
+        let expectedAttributedText = createAttributedText(title: sut.longBreakDurationInMinutes, color: .appGrayColor)
+        
+        // Act
+        sut.changePomodoroState(to: .work)
+        
+        let expectation = expectation(description: "wait for something")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.sut.changePomodoroState(to: .longBreak)
+
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 2)
+
+
+        
+        let timerLabelAttributedText = try XCTUnwrap(sut.timerLabel.attributedText, "unable to unwrap timerLabel text")
+
+        
+        // Assert
+        XCTAssertEqual(sut.pomodoroSessionType, .longBreak, "The current pomodoroSessionType should be longBreak")
+        
+        XCTAssertEqual(changePomodoroStateBtn.title(for: .normal), PomodoroSessionType.longBreak.description, "The changePomodoroStateBtn title should be longBreak")
+        
+        XCTAssertEqual(sut.currentTimerDuration, sut.longBreakDurationInMinutes, "The currentTimerDuration should be longBreak")
+        // assert that label title is accurate
+        XCTAssertEqual(timerLabelAttributedText, expectedAttributedText, "timerLabelAttributedText was not updated")
+        
+        XCTAssertEqual(sut.currentTimerStatus, .inactive, "currentTimerStatus should be inactive")
+        
+        XCTAssertEqual(sut.circularProgressBarView.progressLayer.strokeEnd, 1.0)
+        
+        XCTAssertEqual(sut.elapsedTimeInSeconds, 0)
+        
+    }
+    
+    
+    
+    
+//    func testChangePomodoroStateFromWork_ToShortBreak() {
+//        // Arrange
+//        let changePomodoroStateBtn = sut.changePomodoroStateBtn
+//
+//        // Act
+//        sut.changePomodoroState(to: .shortBreak)
+//
+//        // Assert
+//        XCTAssertEqual(sut.pomodoroSessionType, .shortBreak, "The current pomodoroSessionType should be shortBreak")
+//
+//        XCTAssertEqual(changePomodoroStateBtn.title(for: .normal), PomodoroSessionType.shortBreak.description, "The changePomodoroStateBtn title should be short Break")
+//
+//        XCTAssertEqual(sut.currentTimerDuration, sut.shortRestDurationInMinutes, "The currentTimerDuration should be shortRestDurationInMinutes")
+//
+//    }
+    
     
     
     func testPomodoroShortBreakState() {
@@ -584,11 +727,25 @@ class TimerVCTests: XCTestCase {
 //        clear label colors
 //    }
     
+    //MARK: - Up Next
+    func testResetButtonClearsSessionAndResetsLabels() {
+        
+    }
     
     func testPomodoroLongBreakState() {
         
     }
     
+    
+    
+    
+    //MARK: - Helpers
+    fileprivate func createAttributedText(title: Int, color: UIColor) -> NSAttributedString {
+        let attributedText = NSMutableAttributedString(string: "\(title)\n", attributes: [NSAttributedString.Key.foregroundColor : color, NSAttributedString.Key.font : UIFont.systemFont(ofSize: 40, weight: .heavy)])
+        
+        attributedText.append(NSMutableAttributedString(string: "minutes", attributes: [NSAttributedString.Key.foregroundColor : color, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)]))
+        return attributedText
+    }
 }
 
 
