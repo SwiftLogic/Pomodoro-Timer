@@ -14,6 +14,8 @@ class TimerVCTests: XCTestCase {
     var sut: TimerVC!
     override func setUpWithError() throws {
         sut = TimerVC()
+        sut.loadViewIfNeeded()
+
     }
 
     override func tearDownWithError() throws {
@@ -225,7 +227,7 @@ class TimerVCTests: XCTestCase {
 
         // start timer
         let startPauseButton = sut.startPauseTimerButton
-        sut.focusDurationInMinutes = 1
+        sut.currentTimerDuration = 1
         sut.minutesToSecondsMultiplier = 1
         startPauseButton.sendActions(for: .touchUpInside)
 
@@ -243,7 +245,7 @@ class TimerVCTests: XCTestCase {
         XCTAssertEqual(sut.elapsedTimeInSeconds, 0, "elapsedTimeInSeconds was not resetted to 0")
         XCTAssertEqual(sut.circularProgressBarView.progressLayer.strokeEnd, 1, "circularProgressBarView's progressLayer  was not resetted to 1.0")
         
-        XCTAssertEqual(sut.focusDurationInMinutes, sut.shortRestDurationInMinutes, "the sut's focusDurationInMinutes was not set to short break mins after timer completion")
+        XCTAssertEqual(sut.currentTimerDuration, sut.shortRestDurationInMinutes, "the sut's focusDurationInMinutes was not set to short break mins after timer completion")
         
         XCTAssertEqual(sut.circularProgressBarView.progressLayer.strokeColor, UIColor.appGrayColor.cgColor, "progressLayer color was not set to right color")
        
@@ -258,15 +260,153 @@ class TimerVCTests: XCTestCase {
         
     }
     
+    //MARK: - Change Pomodoro State Tests
     
-    func testOnTimerCompletionResetPomodoroStateToShortBreak() {
-        // asserts on timer completion pomodoro state is changed to appropriate break mode
+    func testVerifyChangePomodoroStateBtnHasAction() throws {
+        //Arrange
+        let changePomodoroStateBtn = sut.changePomodoroStateBtn
         
-        let startPauseButton = sut.startPauseTimerButton
-        sut.focusDurationInMinutes = 1
-        sut.minutesToSecondsMultiplier = 1
-        startPauseButton.sendActions(for: .touchUpInside)
+        let changePomodoroStateBtnActions = try XCTUnwrap(changePomodoroStateBtn.actions(forTarget: sut, forControlEvent: .touchUpInside), "changePomodoroStateBtn has no actions assigned to it")
+        
+        // Assert
+        XCTAssertEqual(changePomodoroStateBtnActions.count, 1)
+        XCTAssertTrue(changePomodoroStateBtnActions.contains("didTapChangePomodoroStateBtn"), "There is no action with the name didTapChangePomodoroStateBtn assigned to changePomodoroStateBtn")
+    }
+    
+    
+//    testChangePomodoroStateBtn_Title_ForWorkMode
+    func testAlertVC_IsPresented() throws {
+       // Arrange
+        guard let firstScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+            return
+        }
 
+        guard let firstWindow = firstScene.windows.first else {
+            return
+        }
+
+        firstWindow.rootViewController = sut
+        
+
+        // Act
+        sut.changePomodoroStateBtn.sendActions(for: .touchUpInside)
+        
+        // Assert
+        XCTAssert(sut.presentedViewController is UIAlertController, "An alert controller was not presented")
+        
+    }
+    
+
+    func testAlertVC_HasTitle() throws {
+        // Arrange
+        let expctedTitle = AppConstant.pomodoAlertVCTTitle
+        
+        guard let firstScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+            return
+        }
+
+        guard let firstWindow = firstScene.windows.first else {
+            return
+        }
+
+        firstWindow.rootViewController = sut
+        
+        
+        // Act
+        sut.changePomodoroStateBtn.sendActions(for: .touchUpInside)
+        
+        // Assert
+        XCTAssertEqual(sut.presentedViewController?.title, expctedTitle)
+        
+    }
+    
+    
+    func testChangePomodoroStateBtn_IsDisabled_WhenTimerIsActive() {
+        // Arrange
+        let changePomodoroStateBtn = sut.changePomodoroStateBtn
+        let startPauseBtn = sut.startPauseTimerButton
+
+        // Act
+        startPauseBtn.sendActions(for: .touchUpInside)
+        
+        let expectation = expectation(description: "wait for timer init")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 0.2)
+
+        
+        // Assert
+        XCTAssertFalse(changePomodoroStateBtn.isEnabled, "The changePomodoroStateBtn should be disabled when timer is active")
+        
+    }
+    
+    
+    func testChangePomodoroStateBtn_IsEnabled_WhenTimerNotActive() {
+        
+        // Arrange
+        let changePomodoroStateBtn = sut.changePomodoroStateBtn
+        
+        // Act
+        sut.configureUIAppearance(for: .inactive)
+        
+        // Assert
+        XCTAssertTrue(changePomodoroStateBtn.isEnabled, "The changePomodoroStateBtn should be isEnabled when timer is inactive")
+        
+    }
+    
+    
+    func testChangePomodoroStateBtn_IsEnabled_WhenTimer_isOnHold() {
+        // Arrange
+        let changePomodoroStateBtn = sut.changePomodoroStateBtn
+        let startPauseBtn = sut.startPauseTimerButton
+
+        // Act
+        startPauseBtn.sendActions(for: .touchUpInside) //start timer
+        
+        let expectation = expectation(description: "wait for timer init")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            startPauseBtn.sendActions(for: .touchUpInside) // pause timer
+
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 0.2)
+
+        
+        // Assert
+        XCTAssertTrue(changePomodoroStateBtn.isEnabled, "The changePomodoroStateBtn should be isEnabled when timer is onHold")
+        
+    }
+    
+    
+    func testChangePomodoroStateBtn_Title_ForShortBreakMode() {
+        
+    }
+    
+    
+    
+    func testChangePomodoroStateBtn_Title_ForLongBreakMode() {
+        
+    }
+    
+    
+    
+    // asserts on timer completion pomodoro state is changed to appropriate break mode
+
+    func testPomodoroStateChangesFromWorkToShortBreakOnTimerCompletion() {
+         // Arrange
+        let startPauseButton = sut.startPauseTimerButton
+        sut.currentTimerDuration = 1
+        sut.minutesToSecondsMultiplier = 1
+        
+        
+        // Act
+        startPauseButton.sendActions(for: .touchUpInside)
+        
         let expectation = expectation(description: "Wait for timer completion")
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
 
@@ -276,19 +416,143 @@ class TimerVCTests: XCTestCase {
 
         wait(for: [expectation], timeout: 3.0)
         
-        XCTAssertEqual(sut.pomodoroSessionType, .shortBreak)
+        // Assert
+        XCTAssertEqual(sut.pomodoroSessionType, .shortBreak, "Pomodoro state was not changed from work to work on shortBreak on timer completion")
+        XCTAssertEqual(sut.currentTimerDuration, sut.shortRestDurationInMinutes, "currentTimerDuration was not set to shortRestDurationInMinutes")
+        
+        XCTAssertEqual(sut.changePomodoroStateBtn.title(for: .normal), PomodoroSessionType.shortBreak.description, "changePomodoroStateBtn title was not updated to .shortBreak")
+
+
     }
     
     
     
-    func testPomodoroWorkState() {
-         
+    func testPomodoroStateChanges_FromShortBreakMode_ToWorkModeOnTimerCompletion() {
+        // Act
+        sut.pomodoroSessionType = .shortBreak
+        sut.onTimerCompletion()
+        
+        // Assert
+        XCTAssertEqual(sut.pomodoroSessionType, .work, "Pomodoro state was not changed from shortbreak to work on short break timer completion")
+        XCTAssertEqual(sut.changePomodoroStateBtn.title(for: .normal), PomodoroSessionType.work.description)
+        
+
+        XCTAssertEqual(sut.currentTimerDuration, sut.focusDurationInMinutes, "currentTimerDuration was not set to focusDurationInMinutes")
+
     }
     
+    
+    
+    func testStoresFirstCompletedFocusSession() {
+        // Arrange
+        let firstSessionLabel = sut.firstSessionLabel
+
+        // Act
+        sut.pomodoroSessionType = .work
+        sut.onTimerCompletion()
+        
+        XCTAssertEqual(sut.completedFocusSessions, .firstSession, "completedFocusSessions should be 1")
+        XCTAssertEqual(firstSessionLabel.backgroundColor, UIColor.appMainColor, "firstSessionLabel backgroundColor should be UIColor.appMainColor")
+        XCTAssertEqual(firstSessionLabel.textColor, UIColor.white, "firstSessionLabel textColor should be UIColor.white")
+        
+    }
+    
+    
+    func testStoresSecondCompletedFocusSession() {
+        // Arrange
+        let secondSessionLabel = sut.secondSessionLabel
+
+        // Act
+        sut.pomodoroSessionType = .work
+        sut.completedFocusSessions = .firstSession
+        sut.onTimerCompletion()
+        
+        // Assert
+        XCTAssertEqual(sut.completedFocusSessions, .secondSession, "completedFocusSessions should be 2")
+        XCTAssertEqual(secondSessionLabel.backgroundColor, UIColor.appMainColor, "secondSessionLabel backgroundColor should be UIColor.appMainColor")
+        XCTAssertEqual(secondSessionLabel.textColor, UIColor.white, "secondSessionLabel textColor should be UIColor.white")
+        
+    }
+    
+    
+    
+    func testStoresThirdCompletedFocusSession() {
+        // Arrange
+        let thirdSessionLabel = sut.thirdSessionLabel
+
+        // Act
+        sut.pomodoroSessionType = .work
+        sut.completedFocusSessions = .secondSession
+        sut.onTimerCompletion()
+        
+        // Assert
+        XCTAssertEqual(sut.completedFocusSessions, .thirdSession, "completedFocusSessions should be 3")
+        XCTAssertEqual(thirdSessionLabel.backgroundColor, UIColor.appMainColor, "thirdSessionLabel backgroundColor should be UIColor.appMainColor")
+        XCTAssertEqual(thirdSessionLabel.textColor, UIColor.white, "thirdSessionLabel textColor should be UIColor.white")
+        
+    }
+    
+    
+//    func testStoresFourthCompletedFocusSession() {
+//        // Arrange
+//        let fourthSessionLabel = sut.fourthSessionLabel
+//
+//        // Act
+//        sut.pomodoroSessionType = .work
+//        sut.completedFocusSessions = .thirdSession
+//        sut.onTimerCompletion()
+//        
+//        // Assert
+//        XCTAssertEqual(sut.completedFocusSessions, .noSession, "completedFocusSessions should be noSession")
+////        XCTAssertEqual(fourthSessionLabel.backgroundColor, UIColor.appMainColor, "fourthSessionLabel backgroundColor should be UIColor.appMainColor")
+////        XCTAssertEqual(fourthSessionLabel.textColor, UIColor.white, "fourthSessionLabel textColor should be UIColor.white")
+//        
+//    }
+    
+    
+    
+    
+//    func testPomodoState_ChangesToLongBreak_Upon4FocusSessions() {
+//        // Act
+//        sut.pomodoroSessionType = .work
+//        sut.onTimerCompletion()
+//
+//        // Assert
+//        XCTAssertEqual(sut.pomodoroSessionType, .work, "Pomodoro state was not changed from shortbreak to work on short break timer completion")
+//        XCTAssertEqual(sut.changePomodoroStateBtn.title(for: .normal), PomodoroSessionType.work.description)
+//
+//    }
+    
+//    func testOnTimeBreakCompletionTimerDurationEqualsFocusDuration() {
+//
+//        sut.startPauseTimerButton.sendActions(for: .touchUpInside)
+//
+//        let expectation = expectation(description: "wait for something")
+//
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//            expectation.fulfill()
+//        }
+//
+//        wait(for: [expectation], timeout: 0.2)
+//
+//
+//        XCTAssertEqual(sut.currentTimerDuration, sut.focusDurationInMinutes)
+//    }
+//
     
     func testPomodoroShortBreakState() {
         
     }
+    
+//
+//    func testUpon4thBreakisLongBreak() {
+//        clear label colors
+//    }
+//
+//
+//    func testUpon4thShortBreak() {
+//        clear label colors
+//    }
     
     
     func testPomodoroLongBreakState() {

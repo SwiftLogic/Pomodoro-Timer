@@ -30,7 +30,6 @@ class TimerVC: UIViewController {
     
     fileprivate(set) var elapsedTimeInSeconds = 0
     
-    fileprivate(set) var shortRestDurationInMinutes = 3
     
     fileprivate var elapsedTimeInMinutes: CGFloat {
         get {
@@ -38,20 +37,25 @@ class TimerVC: UIViewController {
         }
     }
     
-    var focusDurationInMinutes = 1
+    lazy var currentTimerDuration = focusDurationInMinutes
+    var focusDurationInMinutes = 6
+    fileprivate(set) var shortRestDurationInMinutes = 2
+
+    var completedFocusSessions: FocusSession = .noSession
+
     
     var pomodoroSessionType: PomodoroSessionType = .work
     
-    var minutesToSecondsMultiplier = 60
+    var minutesToSecondsMultiplier = 1//60
     
     fileprivate(set) var currentTimerStatus: TimerStatus = .inactive {
         didSet {
             configureUIAppearance(for: currentTimerStatus)
         }
     }
-
     
-    fileprivate lazy var currentModeButton: UIButton = {
+    
+    fileprivate(set) lazy var changePomodoroStateBtn: UIButton = {
         let button = UIButton(type: .system)
         button.layer.borderWidth = 0.8
         button.layer.borderColor = currentModeButtonColor.cgColor
@@ -66,6 +70,7 @@ class TimerVC: UIViewController {
         button.setImage(image?.withRenderingMode(.alwaysTemplate), for: .normal)
         button.semanticContentAttribute = .forceRightToLeft
         button.imageEdgeInsets = .init(top: 0, left: 4, bottom: 0, right: 0)
+        button.addTarget(self, action: #selector(didTapChangePomodoroStateBtn), for: .touchUpInside)
         return button
     }()
     
@@ -153,10 +158,10 @@ class TimerVC: UIViewController {
         return label
     }()
     
-    fileprivate lazy var firstSessionLabel = createCircularLabel(text: "1")
-    fileprivate lazy var secondSessionLabel = createCircularLabel(text: "2")
-    fileprivate lazy var thirdSessionLabel = createCircularLabel(text: "3")
-    fileprivate lazy var fourthSessionLabel = createCircularLabel(text: "4")
+    fileprivate(set) lazy var firstSessionLabel = createCircularLabel(text: "1")
+    fileprivate(set) lazy var secondSessionLabel = createCircularLabel(text: "2")
+    fileprivate(set) lazy var thirdSessionLabel = createCircularLabel(text: "3")
+    fileprivate(set) lazy var fourthSessionLabel = createCircularLabel(text: "4")
 
    
     
@@ -170,18 +175,18 @@ class TimerVC: UIViewController {
     fileprivate func setUpViews() {
         
         // selectionTypeButton
-        view.addSubview(currentModeButton)
-        currentModeButton.centerXInSuperview()
-        currentModeButton.constrainWidth(constant: 85)
-        currentModeButton.constrainHeight(constant: 35)
-        currentModeButton.layer.cornerRadius = 35 / 2
-        currentModeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12).isActive = true
+        view.addSubview(changePomodoroStateBtn)
+        changePomodoroStateBtn.centerXInSuperview()
+        changePomodoroStateBtn.constrainWidth(constant: 85)
+        changePomodoroStateBtn.constrainHeight(constant: 35)
+        changePomodoroStateBtn.layer.cornerRadius = 35 / 2
+        changePomodoroStateBtn.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12).isActive = true
    
         // currentTaskLabel
         view.addSubview(currentTaskLabel)
         NSLayoutConstraint.activate([
-            currentTaskLabel.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
-            currentTaskLabel.topAnchor.constraint(equalTo: currentModeButton.bottomAnchor, constant: 40),
+            currentTaskLabel.centerXAnchor.constraint(equalTo: changePomodoroStateBtn.centerXAnchor),
+            currentTaskLabel.topAnchor.constraint(equalTo: changePomodoroStateBtn.bottomAnchor, constant: 40),
             currentTaskLabel.widthAnchor.constraint(lessThanOrEqualToConstant: view.frame.width),
             currentTaskLabel.heightAnchor.constraint(equalToConstant: currentTaskLabelHeight)
         ])
@@ -190,7 +195,7 @@ class TimerVC: UIViewController {
         // circularRingView
         view.addSubview(circularProgressBarParentView)
         NSLayoutConstraint.activate([
-            circularProgressBarParentView.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
+            circularProgressBarParentView.centerXAnchor.constraint(equalTo: changePomodoroStateBtn.centerXAnchor),
             circularProgressBarParentView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             circularProgressBarParentView.widthAnchor.constraint(equalToConstant: circularProgressBarParentViewDimen),
             circularProgressBarParentView.heightAnchor.constraint(equalToConstant: circularProgressBarParentViewDimen)
@@ -205,7 +210,7 @@ class TimerVC: UIViewController {
         // startPauseButton
         view.addSubview(startPauseTimerButton)
         NSLayoutConstraint.activate([
-            startPauseTimerButton.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
+            startPauseTimerButton.centerXAnchor.constraint(equalTo: changePomodoroStateBtn.centerXAnchor),
             startPauseTimerButton.topAnchor.constraint(equalTo: circularProgressBarParentView.bottomAnchor, constant: 40),
             startPauseTimerButton.widthAnchor.constraint(equalToConstant: 75),
             startPauseTimerButton.heightAnchor.constraint(equalToConstant: 40)
@@ -215,7 +220,7 @@ class TimerVC: UIViewController {
         // resetButton
         view.addSubview(resetTimerBtn)
         NSLayoutConstraint.activate([
-            resetTimerBtn.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
+            resetTimerBtn.centerXAnchor.constraint(equalTo: changePomodoroStateBtn.centerXAnchor),
             resetTimerBtn.topAnchor.constraint(equalTo: startPauseTimerButton.bottomAnchor, constant: 15),
             
         ])
@@ -232,7 +237,7 @@ class TimerVC: UIViewController {
         view.addSubview(stackView)
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: resetTimerBtn.bottomAnchor, constant: 15),
-            stackView.centerXAnchor.constraint(equalTo: currentModeButton.centerXAnchor),
+            stackView.centerXAnchor.constraint(equalTo: changePomodoroStateBtn.centerXAnchor),
             stackView.leadingAnchor.constraint(equalTo: startPauseTimerButton.leadingAnchor, constant: 5),
             stackView.trailingAnchor.constraint(equalTo: startPauseTimerButton.trailingAnchor, constant: -5),
             stackView.heightAnchor.constraint(equalToConstant: 10)
@@ -257,7 +262,7 @@ class TimerVC: UIViewController {
     
     
     fileprivate func setUpFocusTimerMinutesLabel(color: UIColor) {
-        let attributedText = NSMutableAttributedString(string: "\(focusDurationInMinutes)\n", attributes: [NSAttributedString.Key.foregroundColor : color, NSAttributedString.Key.font : UIFont.systemFont(ofSize: 40, weight: .heavy)])
+        let attributedText = NSMutableAttributedString(string: "\(currentTimerDuration)\n", attributes: [NSAttributedString.Key.foregroundColor : color, NSAttributedString.Key.font : UIFont.systemFont(ofSize: 40, weight: .heavy)])
         
         attributedText.append(NSMutableAttributedString(string: "minutes", attributes: [NSAttributedString.Key.foregroundColor : color, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)]))
         timerLabel.attributedText = attributedText
@@ -301,6 +306,8 @@ class TimerVC: UIViewController {
             circularProgressBarView.progressLayer.strokeColor = UIColor.appMainColor.cgColor
 
             setUpFocusTimerMinutesLabel(color: .appMainColor)
+            
+            changePomodoroStateBtn.isEnabled = false
 
         case .onHold:
 
@@ -309,6 +316,8 @@ class TimerVC: UIViewController {
             circularProgressBarView.progressLayer.strokeColor = UIColor.appGrayColor.cgColor
 
             setUpFocusTimerMinutesLabel(color: .appGrayColor)
+            changePomodoroStateBtn.isEnabled = true
+
 
         case .inactive:
 
@@ -317,6 +326,8 @@ class TimerVC: UIViewController {
             circularProgressBarView.progressLayer.strokeColor = UIColor.appGrayColor.cgColor
 
             setUpFocusTimerMinutesLabel(color: .appGrayColor)
+            changePomodoroStateBtn.isEnabled = true
+
         }
     }
     
@@ -336,6 +347,36 @@ class TimerVC: UIViewController {
 
 //MARK: - Actions
 extension TimerVC {
+    
+    @objc fileprivate func didTapChangePomodoroStateBtn() {
+        let alertVC = UIAlertController(title: AppConstant.pomodoAlertVCTTitle, message: AppConstant.pomodoAlertVCMessage, preferredStyle: .actionSheet)
+        
+        let workAction = UIAlertAction(title: PomodoroSessionType.work.description, style: .default) { _ in
+            print("work session tapped")
+        }
+        
+        
+        let shortBreakAction = UIAlertAction(title: PomodoroSessionType.shortBreak.description, style: .default) { _ in
+            print("shortBreakAction tapped")
+        }
+        
+        
+        let longBreakAction = UIAlertAction(title: PomodoroSessionType.shortBreak.description, style: .default) { _ in
+            print("longBreakAction tapped")
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            print("longBreakAction tapped")
+        }
+        
+        alertVC.addAction(workAction)
+        alertVC.addAction(shortBreakAction)
+        alertVC.addAction(longBreakAction)
+        alertVC.addAction(cancelAction)
+
+        present(alertVC, animated: true)
+
+    }
     
     
     @objc fileprivate func didTapTasksButton() {
@@ -385,26 +426,35 @@ extension TimerVC {
     
     @objc fileprivate func timeTicking() {
         elapsedTimeInSeconds += 1
-        let duration = focusDurationInMinutes * minutesToSecondsMultiplier
+        let duration = currentTimerDuration * minutesToSecondsMultiplier
         let progress = CGFloat(elapsedTimeInSeconds) / CGFloat(duration)
         circularProgressBarView.progressLayer.strokeEnd = 1 - progress
         
         if duration == elapsedTimeInSeconds {
            onTimerCompletion()
         }
-
-//        print("progress: ", 1 - progress)
-//        print("elapsedTime: ", elapsedTimeInSeconds)
-        
+  
     }
     
     
     
-    fileprivate func onTimerCompletion() {
+     func onTimerCompletion() {
         didTapResetTimerBtn()
-        focusDurationInMinutes = shortRestDurationInMinutes
         circularProgressBarView.progressLayer.strokeColor = UIColor.appGrayColor.cgColor
-        pomodoroSessionType = .shortBreak
+        
+        if pomodoroSessionType == .work {
+            pomodoroSessionType = .shortBreak
+            currentTimerDuration = shortRestDurationInMinutes
+            updateCompletedSession(for: completedFocusSessions)
+            
+        } else {
+            pomodoroSessionType = .work
+            currentTimerDuration = focusDurationInMinutes
+        }
+         
+         changePomodoroStateBtn.setTitle(pomodoroSessionType.description, for: .normal)
+         setUpFocusTimerMinutesLabel(color: .appGrayColor)
+
     }
     
     @objc fileprivate func didTapResetTimerBtn() {
@@ -415,12 +465,64 @@ extension TimerVC {
     }
 
     
+    
+    
+    fileprivate func updateCompletedSession(for currentSession: FocusSession) {
+        switch currentSession {
+        case .noSession:
+            
+            update(firstSessionLabel, backgroundColor: .appMainColor, textColor: .white)
+            completedFocusSessions = .firstSession
+            
+        case .firstSession:
+            
+            update(secondSessionLabel, backgroundColor: .appMainColor, textColor: .white)
+            completedFocusSessions = .secondSession
+
+        case .secondSession:
+            
+            update(thirdSessionLabel, backgroundColor: .appMainColor, textColor: .white)
+            completedFocusSessions = .thirdSession
+            
+        case .thirdSession:
+            
+            update(fourthSessionLabel, backgroundColor: .appMainColor, textColor: .white)
+            completedFocusSessions = .noSession
+
+       
+        }
+    }
+    
+    
+    fileprivate func update(_ label: UILabel, backgroundColor: UIColor, textColor: UIColor) {
+        label.backgroundColor =  backgroundColor
+        label.textColor = textColor
+    }
+    
 }
 
 
-enum PomodoroSessionType {
+enum PomodoroSessionType: CustomStringConvertible {
     case work, shortBreak, longBreak
+    
+    var description: String {
+        switch self {
+        case .work:
+            return "Work"
+        case .shortBreak:
+            return "Short Break"
+        case .longBreak:
+            return "Long Break"
+        }
+    }
 }
+
+
+
+enum FocusSession: Int, CaseIterable {
+    case noSession, firstSession, secondSession, thirdSession
+}
+
 
 class UILabelWithInsets : UILabel {
     var textInsets = UIEdgeInsets.zero {
