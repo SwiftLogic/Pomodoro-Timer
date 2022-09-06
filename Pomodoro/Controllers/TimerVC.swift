@@ -120,6 +120,9 @@ class TimerVC: UIViewController {
         let view = UIView()
         view.layer.cornerRadius = circularProgressBarParentViewDimen / 2
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.isUserInteractionEnabled = true
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapStartPauseButton))
+        view.addGestureRecognizer(tapGesture)
         return view
     }()
     
@@ -255,8 +258,7 @@ class TimerVC: UIViewController {
         // settingsButton
         view.addSubview(settingsButton)
         settingsButton.anchor(top: nil, leading: nil, bottom: view.safeAreaLayoutGuide.bottomAnchor, trailing: view.trailingAnchor, padding: .init(top: 0, left: 0, bottom: yAxisPadding, right: xAxisPadding), size: .init(width: taskButtonDimen, height: taskButtonDimen))
-        
-
+      
     }
     
     
@@ -302,6 +304,9 @@ class TimerVC: UIViewController {
             setUpFocusTimerMinutesLabel(color: .appMainColor)
             
             changePomodoroStateBtn.isEnabled = false
+            
+            scaleProgressView(up: true)
+            
 
         case .onHold:
 
@@ -311,6 +316,8 @@ class TimerVC: UIViewController {
 
             setUpFocusTimerMinutesLabel(color: .appGrayColor)
             changePomodoroStateBtn.isEnabled = true
+
+            scaleProgressView(up: false)
 
 
         case .inactive:
@@ -322,9 +329,24 @@ class TimerVC: UIViewController {
             setUpFocusTimerMinutesLabel(color: .appGrayColor)
             changePomodoroStateBtn.isEnabled = true
 
+            scaleProgressView(up: false)
+
         }
     }
     
+    
+    
+    fileprivate func scaleProgressView(up: Bool) {
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut) {[weak self] in
+            if up {
+                self?.circularProgressBarView.transform = .identity
+                self?.circularProgressBarParentView.transform = .identity
+            } else {
+                self?.circularProgressBarParentView.transform = .init(scaleX: AppConstant.scaleProgressViewDown, y: AppConstant.scaleProgressViewDown)
+                self?.circularProgressBarView.transform = .init(scaleX: AppConstant.scaleProgressViewDown, y: AppConstant.scaleProgressViewDown)
+            }
+        }
+    }
     
     
    fileprivate func changeButtonAppearance(with title: String, titleColor: UIColor, backgroundColor: UIColor) {
