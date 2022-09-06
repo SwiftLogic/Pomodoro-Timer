@@ -43,7 +43,12 @@ class TimerVC: UIViewController {
     fileprivate(set) var longBreakDurationInMinutes = 4
 
     var nextFocusBlock: FocusSession = .firstSession
-    var pomodoroSessionType: PomodoroSessionType = .work
+    
+    var pomodoroSessionType: PomodoroSessionType = .work {
+        didSet {
+            updateChangePomodoroStateBtnWidth()
+        }
+    }
     
     var minutesToSecondsMultiplier = 60
     
@@ -54,15 +59,17 @@ class TimerVC: UIViewController {
     }
     
     
+    
+    fileprivate var changePomodoroStateBtnWidthAnchor = NSLayoutConstraint()
     fileprivate(set) lazy var changePomodoroStateBtn: UIButton = {
         let button = UIButton(type: .system)
         button.layer.borderWidth = 0.8
         button.layer.borderColor = currentModeButtonColor.cgColor
-        button.setTitle("Work", for: .normal)
-        button.setTitleColor(currentModeButtonColor, for: .normal)
+        button.setTitle(pomodoroSessionType.description, for: .normal)
+        button.setTitleColor(.appMainColor, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
         button.backgroundColor = UIColor.appMainColor.withAlphaComponent(0.1)
-        button.tintColor = currentModeButtonColor
+        button.tintColor = .appMainColor
         let config = UIImage.SymbolConfiguration(pointSize: 10, weight: .black, scale: .medium)
         let image = UIImage(systemName: "chevron.down", withConfiguration:
                                 config)?.withRenderingMode(.alwaysTemplate)
@@ -74,10 +81,13 @@ class TimerVC: UIViewController {
     }()
     
     
+    
+    
+    
     fileprivate let currentTaskLabelHeight: CGFloat = 45
     fileprivate lazy var currentTaskLabel: UILabelWithInsets = {
         let label = UILabelWithInsets()
-        label.text = "Current Task Label"
+        label.text = "Update Pomodoro-Timer App's README"
         label.textColor = .gray
         label.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -179,7 +189,9 @@ class TimerVC: UIViewController {
         // selectionTypeButton
         view.addSubview(changePomodoroStateBtn)
         changePomodoroStateBtn.centerXInSuperview()
-        changePomodoroStateBtn.constrainWidth(constant: 85)
+        changePomodoroStateBtnWidthAnchor = changePomodoroStateBtn.widthAnchor.constraint(equalToConstant: 85)
+        changePomodoroStateBtnWidthAnchor.isActive = true
+//        changePomodoroStateBtn.constrainWidth(constant: 85)
         changePomodoroStateBtn.constrainHeight(constant: 35)
         changePomodoroStateBtn.layer.cornerRadius = 35 / 2
         changePomodoroStateBtn.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12).isActive = true
@@ -354,6 +366,23 @@ class TimerVC: UIViewController {
         startPauseTimerButton.setTitleColor(titleColor, for: .normal)
         startPauseTimerButton.backgroundColor = backgroundColor
     }
+    
+    
+    
+    fileprivate func updateChangePomodoroStateBtnWidth() {
+        var newWidth: CGFloat
+        switch pomodoroSessionType {
+        case .work:
+            newWidth = 85
+        case .shortBreak, .longBreak:
+            newWidth = 120
+        }
+        changePomodoroStateBtnWidthAnchor.constant = newWidth
+        UIView.animate(withDuration: 0.2) {[weak self] in
+            self?.view.layoutIfNeeded()
+        }
+    }
+    
 
 }
 
