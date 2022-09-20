@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+import Combine
 class TimerSettingsCell: UITableViewCell {
     
     //MARK: - Init
@@ -22,8 +22,21 @@ class TimerSettingsCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
     //MARK: - Properties
+    
     static let cellReuseIdentifier = String(describing: TimerSettingsCell.self)
+
+    let cellActionHandler = PassthroughSubject<Action, Never>()
+    
+    fileprivate var pomodoroSessionType = PomodoroSessionType.work
+    
+    fileprivate var currentDurationInMinutes = 0 {
+        didSet {
+            setUpTitle(mins: currentDurationInMinutes)
+        }
+    }
+
     
     fileprivate(set) lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -56,8 +69,8 @@ class TimerSettingsCell: UITableViewCell {
     }()
     
     
-    fileprivate lazy var reduceButton = createButton(imageSystemName: "minus")
-    fileprivate lazy var increaseButton = createButton(imageSystemName: "plus")
+    fileprivate lazy var reduceButton = createButton(imageSystemName: "minus", selector: #selector(didTapDecreaseMins))
+    fileprivate lazy var increaseButton = createButton(imageSystemName: "plus", selector: #selector(didTapIncreaseMins))
 
     
     //MARK: - Methods
@@ -87,24 +100,26 @@ class TimerSettingsCell: UITableViewCell {
         increaseButton.centerYInSuperview()
         increaseButton.leadingAnchor.constraint(equalTo: totalTimerLabel.trailingAnchor, constant: 30).isActive = true
 
-        
-        
-        let attributedText = setupAttributedTextWithFonts(titleString: "50\n", subTitleString: "minutes", attributedTextColor: .gray, mainColor: .appMainColor, mainfont: UIFont.systemFont(ofSize: 40, weight: .heavy), subFont: .systemFont(ofSize: 14))
+    }
+    
+    
+    
+    func configureTitle(with type: PomodoroSessionType, durationInMins: Int) {
+        pomodoroSessionType = type
+        titleLabel.text = type.description
+        currentDurationInMinutes = durationInMins
+    }
+    
+    
+    
+    fileprivate func setUpTitle(mins: Int) {
+        let attributedText = setupAttributedTextWithFonts(titleString: "\(mins)\n", subTitleString: "minutes", attributedTextColor: .gray, mainColor: .appMainColor, mainfont: UIFont.systemFont(ofSize: 40, weight: .heavy), subFont: .systemFont(ofSize: 14))
         
         totalTimerLabel.attributedText = attributedText
-        
-        
     }
     
     
-    
-    func configureTitle(with title: String) {
-        titleLabel.text = title
-    }
-    
-    
-    
-    fileprivate func createButton(imageSystemName: String) -> UIButton {
+    fileprivate func createButton(imageSystemName: String, selector: Selector) -> UIButton {
         let button = UIButton(type: .system)
         
         let config = UIImage.SymbolConfiguration(pointSize: 10, weight: .black, scale: .medium)
@@ -118,8 +133,36 @@ class TimerSettingsCell: UITableViewCell {
         button.layer.cornerRadius = buttonDimen / 2
         button.constrainHeight(constant: buttonDimen)
         button.constrainWidth(constant: buttonDimen)
+        button.addTarget(self, action: selector, for: .touchUpInside)
         return button
     }
     
+ 
     
+    
+    //MARK: - Actions
+    @objc fileprivate func didTapIncreaseMins() {
+        currentDurationInMinutes += 1
+        cellActionHandler.send(.increaseDuration)
+    }
+    
+    
+    @objc fileprivate func didTapDecreaseMins() {
+        currentDurationInMinutes -= 1
+        cellActionHandler.send(.decreaseDuration)
+    }
+    
+    // increase and decrease shortbreak and longbreak actions
+    // unit test cell actions
+    
+}
+
+
+
+
+extension TimerSettingsCell {
+    enum Action {
+        case increaseDuration
+        case decreaseDuration
+    }
 }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 class SettingsVC: UITableViewController {
     
     //MARK: - View's LifeCycle
@@ -17,6 +18,7 @@ class SettingsVC: UITableViewController {
     
 
     //MARK: - Properties
+    fileprivate var anyCancellable = Set<AnyCancellable>()
     fileprivate let moreSettingItems = [
         "How it works?",
         "Share App",
@@ -28,11 +30,11 @@ class SettingsVC: UITableViewController {
         ]
     
     
-    fileprivate let timeSettingsItems = [
-        "Work",
-        "Short Break",
-        "Long Break"
-    ]
+    fileprivate let timeSettingsItems = PomodoroSessionType.allCases
+    fileprivate(set) lazy var workDuration = getCurrentWorkDuration()
+    fileprivate(set) lazy var shortBreakDuration = getCurrentShortBreakDuration()
+    fileprivate(set) lazy var longBreakDuration = getCurrentLongBreakDuration()
+
     
     
     fileprivate let toggleSettingsData = [
@@ -74,6 +76,36 @@ class SettingsVC: UITableViewController {
     }
     
     
+    fileprivate func getCurrentWorkDuration() -> Int {
+        let userDefault = UserDefaults.standard
+        
+        let workDuration = userDefault.object(forKey: AppConstant.workDuration) as? Int ?? AppConstant.workDurationDefaultValue
+        
+        return workDuration
+    }
+   
+    
+    
+    fileprivate func getCurrentShortBreakDuration() -> Int {
+        let userDefault = UserDefaults.standard
+
+
+        let shortBreakDuration = userDefault.object(forKey: AppConstant.shortBreakDuration) as? Int ?? AppConstant.shorBreakDurationDefaultValue
+        
+        return shortBreakDuration
+    }
+   
+    
+    
+    
+    fileprivate func getCurrentLongBreakDuration() -> Int {
+        let userDefault = UserDefaults.standard
+
+
+        let longBreakDuration = userDefault.object(forKey: AppConstant.longBreakDuration) as? Int ?? AppConstant.longBreakDurationDefaultValue
+        
+        return longBreakDuration
+    }
    
     
 }
@@ -93,7 +125,51 @@ extension SettingsVC {
         case .timerSettings(let timeSettingsItems):
             let cell = tableView.dequeueReusableCell(withIdentifier: TimerSettingsCell.cellReuseIdentifier, for: indexPath) as! TimerSettingsCell
             let title = timeSettingsItems[indexPath.row]
-            cell.configureTitle(with: title)
+            switch title {
+                
+            case .work:
+                cell.configureTitle(with: title, durationInMins: workDuration)
+
+                cell.cellActionHandler.sink { subscription in
+                     switch subscription {
+
+                     case .finished: ()
+
+                     }
+                 } receiveValue: {[weak self] sessionType in
+                     print("sessionType: ", sessionType)
+                 }.store(in: &anyCancellable)
+                
+            case .shortBreak:
+                cell.configureTitle(with: title, durationInMins: shortBreakDuration)
+
+                cell.cellActionHandler.sink { subscription in
+                     switch subscription {
+
+                     case .finished: ()
+
+                     }
+                 } receiveValue: {[weak self] sessionType in
+                     print("sessionType: ", sessionType)
+                 }.store(in: &anyCancellable)
+                
+            case .longBreak:
+                
+                cell.configureTitle(with: title, durationInMins: longBreakDuration)
+
+                  cell.cellActionHandler.sink { subscription in
+                     switch subscription {
+
+                     case .finished: ()
+
+                     }
+                 } receiveValue: {[weak self] sessionType in
+                     print("sessionType: ", sessionType)
+                 }.store(in: &anyCancellable)
+                
+            }
+           
+
             return cell
             
 
@@ -186,6 +262,9 @@ extension SettingsVC {
     
 }
 
+
+
+//MARK: - Actions
 
 
 #if canImport(SwiftUI) && DEBUG

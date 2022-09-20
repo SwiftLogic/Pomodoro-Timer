@@ -34,6 +34,7 @@
 		E99DA5602894BFFD004B9298 /* AddNewTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E99DA55F2894BFFD004B9298 /* AddNewTaskView.swift */; };
 		E99DA5622894D1D2004B9298 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = E99DA5612894D1D2004B9298 /* Protocols.swift */; };
 		E9BACF38288F94BE00FF885E /* CircularProgressBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9BACF37288F94BE00FF885E /* CircularProgressBarView.swift */; };
+		E9C864C828D660E700B4447E /* SettingsVCTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C864C728D660E700B4447E /* SettingsVCTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,7 @@
 		E99DA55F2894BFFD004B9298 /* AddNewTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewTaskView.swift; sourceTree = "<group>"; };
 		E99DA5612894D1D2004B9298 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		E9BACF37288F94BE00FF885E /* CircularProgressBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressBarView.swift; sourceTree = "<group>"; };
+		E9C864C728D660E700B4447E /* SettingsVCTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsVCTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +143,7 @@
 			isa = PBXGroup;
 			children = (
 				E981E5A728C1031F00983A4D /* TimerVCTests.swift */,
+				E9C864C728D660E700B4447E /* SettingsVCTests.swift */,
 			);
 			path = PomodoroTests;
 			sourceTree = "<group>";
@@ -353,6 +356,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E981E5A828C1031F00983A4D /* TimerVCTests.swift in Sources */,
+				E9C864C828D660E700B4447E /* SettingsVCTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -6,7 +6,7 @@
 //
 
 import UIKit
-enum PomodoroSessionType: CustomStringConvertible {
+enum PomodoroSessionType: CustomStringConvertible, CaseIterable {
     case work, shortBreak, longBreak
     
     var description: String {
