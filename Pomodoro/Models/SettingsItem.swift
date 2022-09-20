@@ -7,7 +7,7 @@
 
 import UIKit
 enum SettingsItem: CustomStringConvertible {
-    case siriShortCuts, timerSettings([String]), toggleSettings([String]), workSessions, more([String])
+    case siriShortCuts, timerSettings([PomodoroSessionType]), toggleSettings([String]), workSessions, more([String])
     
     var description: String {
         switch self {

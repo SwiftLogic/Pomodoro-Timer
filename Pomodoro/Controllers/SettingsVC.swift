@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 class SettingsVC: UITableViewController {
     
     //MARK: - View's LifeCycle
@@ -17,6 +18,7 @@ class SettingsVC: UITableViewController {
     
 
     //MARK: - Properties
+    fileprivate var anyCancellable = Set<AnyCancellable>()
     fileprivate let moreSettingItems = [
         "How it works?",
         "Share App",
@@ -28,11 +30,11 @@ class SettingsVC: UITableViewController {
         ]
     
     
-    fileprivate let timeSettingsItems = [
-        "Work",
-        "Short Break",
-        "Long Break"
-    ]
+    fileprivate let timeSettingsItems = PomodoroSessionType.allCases
+    lazy var workDuration = getCurrentWorkDuration()
+    lazy var shortBreakDuration = getCurrentShortBreakDuration()
+    lazy var longBreakDuration = getCurrentLongBreakDuration()
+
     
     
     fileprivate let toggleSettingsData = [
@@ -74,6 +76,36 @@ class SettingsVC: UITableViewController {
     }
     
     
+     func getCurrentWorkDuration() -> Int {
+        let userDefault = UserDefaults.standard
+        
+        let workDuration = userDefault.object(forKey: .workDuration) as? Int ?? .workDurationDefaultValue
+        
+        return workDuration
+    }
+   
+    
+    
+     func getCurrentShortBreakDuration() -> Int {
+        let userDefault = UserDefaults.standard
+
+
+        let shortBreakDuration = userDefault.object(forKey: .shortBreakDuration) as? Int ?? .shorBreakDurationDefaultValue
+        
+        return shortBreakDuration
+    }
+   
+    
+    
+    
+     func getCurrentLongBreakDuration() -> Int {
+        let userDefault = UserDefaults.standard
+
+
+        let longBreakDuration = userDefault.object(forKey: .longBreakDuration) as? Int ?? .longBreakDurationDefaultValue
+        
+        return longBreakDuration
+    }
    
     
 }
@@ -92,8 +124,8 @@ extension SettingsVC {
             
         case .timerSettings(let timeSettingsItems):
             let cell = tableView.dequeueReusableCell(withIdentifier: TimerSettingsCell.cellReuseIdentifier, for: indexPath) as! TimerSettingsCell
-            let title = timeSettingsItems[indexPath.row]
-            cell.configureTitle(with: title)
+            let session = timeSettingsItems[indexPath.row]
+            configure(cell, with: session)
             return cell
             
 
@@ -115,6 +147,24 @@ extension SettingsVC {
 
         }
        
+    }
+    
+    
+    /// Binds TimerSettingsCell with PomodoroSessionType and attaches a combine subscriber to the cell's passthroughSubject
+    fileprivate func configure(_ cell: TimerSettingsCell, with session: PomodoroSessionType) {
+        switch session {
+        case .work:
+            cell.configureTitle(with: session, durationInMins: workDuration)
+            subscribe(to: cell)
+
+        case .shortBreak:
+            cell.configureTitle(with: session, durationInMins: shortBreakDuration)
+            subscribe(to: cell)
+            
+        case .longBreak:
+            cell.configureTitle(with: session, durationInMins: longBreakDuration)
+             subscribe(to: cell)
+        }
     }
     
     
@@ -184,26 +234,98 @@ extension SettingsVC {
     }
     
     
+    
+    
+    
 }
 
 
 
-#if canImport(SwiftUI) && DEBUG
-import SwiftUI
+//MARK: - Actions
+extension SettingsVC {
+    
+    /// Listens to TimerSettingsCell actions published via passthroughsubject
+    fileprivate func subscribe(to cell: TimerSettingsCell) {
+        cell.cellActionPublisher
+        .receive(on: DispatchQueue.main)
+        .sink { _ in
+            
+        } receiveValue: {[weak self] cellAction in
+            switch cellAction {
+                
+            case .increaseDuration(let sessionType):
+                self?.increase(session: sessionType, by: 1)
+                
+            case .decreaseDuration(let sessionType):
+                self?.decrease(session: sessionType, by: 1)
+                
+            }
+        }.store(in: &anyCancellable)
+    }
+    
+    
+    func increase(session: PomodoroSessionType, by num: Int) {
+        switch session {
+        case .work:
+            workDuration += num
+            UserDefaults.standard.set(workDuration, forKey: .workDuration)
 
-let deviceNames: [String] = [
-    "iPhone SE (2nd generation)"
-]
+        case .shortBreak:
+            shortBreakDuration += num
+            UserDefaults.standard.set(shortBreakDuration, forKey: .shortBreakDuration)
 
-@available(iOS 13.0, *)
-struct ViewController_Preview: PreviewProvider {
-    static var previews: some View {
-        ForEach(deviceNames, id: \.self) { deviceName in
-            UIViewControllerPreview {
-                SettingsVC()
-            }.previewDevice(PreviewDevice(rawValue: deviceName))
-                .previewDisplayName(deviceName)
+        case .longBreak:
+            longBreakDuration += num
+            UserDefaults.standard.set(longBreakDuration, forKey: .longBreakDuration)
+
         }
     }
+    
+    
+    func decrease(session: PomodoroSessionType, by num: Int) {
+        
+        switch session {
+        case .work:
+            guard workDuration > 0 else {return}
+            workDuration -= num
+            UserDefaults.standard.set(workDuration, forKey: .workDuration)
+
+        case .shortBreak:
+            guard shortBreakDuration > 0 else {return}
+            shortBreakDuration -= num
+            UserDefaults.standard.set(shortBreakDuration, forKey: .shortBreakDuration)
+
+        case .longBreak:
+            guard longBreakDuration > 0 else {return}
+            longBreakDuration -= num
+            UserDefaults.standard.set(longBreakDuration, forKey: .longBreakDuration)
+
+            
+        }
+        
+    }
+    
+    
 }
-#endif
+
+
+
+//#if canImport(SwiftUI) && DEBUG
+//import SwiftUI
+//
+//let deviceNames: [String] = [
+//    "iPhone SE (2nd generation)"
+//]
+//
+//@available(iOS 13.0, *)
+//struct ViewController_Preview: PreviewProvider {
+//    static var previews: some View {
+//        ForEach(deviceNames, id: \.self) { deviceName in
+//            UIViewControllerPreview {
+//                SettingsVC()
+//            }.previewDevice(PreviewDevice(rawValue: deviceName))
+//                .previewDisplayName(deviceName)
+//        }
+//    }
+//}
+//#endif
