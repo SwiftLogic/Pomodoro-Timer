@@ -31,9 +31,9 @@ class SettingsVC: UITableViewController {
     
     
     fileprivate let timeSettingsItems = PomodoroSessionType.allCases
-    fileprivate(set) lazy var workDuration = getCurrentWorkDuration()
-    fileprivate(set) lazy var shortBreakDuration = getCurrentShortBreakDuration()
-    fileprivate(set) lazy var longBreakDuration = getCurrentLongBreakDuration()
+    lazy var workDuration = getCurrentWorkDuration()
+    lazy var shortBreakDuration = getCurrentShortBreakDuration()
+    lazy var longBreakDuration = getCurrentLongBreakDuration()
 
     
     
@@ -76,21 +76,21 @@ class SettingsVC: UITableViewController {
     }
     
     
-    fileprivate func getCurrentWorkDuration() -> Int {
+     func getCurrentWorkDuration() -> Int {
         let userDefault = UserDefaults.standard
         
-        let workDuration = userDefault.object(forKey: AppConstant.workDuration) as? Int ?? AppConstant.workDurationDefaultValue
+        let workDuration = userDefault.object(forKey: .workDuration) as? Int ?? .workDurationDefaultValue
         
         return workDuration
     }
    
     
     
-    fileprivate func getCurrentShortBreakDuration() -> Int {
+     func getCurrentShortBreakDuration() -> Int {
         let userDefault = UserDefaults.standard
 
 
-        let shortBreakDuration = userDefault.object(forKey: AppConstant.shortBreakDuration) as? Int ?? AppConstant.shorBreakDurationDefaultValue
+        let shortBreakDuration = userDefault.object(forKey: .shortBreakDuration) as? Int ?? .shorBreakDurationDefaultValue
         
         return shortBreakDuration
     }
@@ -98,11 +98,11 @@ class SettingsVC: UITableViewController {
     
     
     
-    fileprivate func getCurrentLongBreakDuration() -> Int {
+     func getCurrentLongBreakDuration() -> Int {
         let userDefault = UserDefaults.standard
 
 
-        let longBreakDuration = userDefault.object(forKey: AppConstant.longBreakDuration) as? Int ?? AppConstant.longBreakDurationDefaultValue
+        let longBreakDuration = userDefault.object(forKey: .longBreakDuration) as? Int ?? .longBreakDurationDefaultValue
         
         return longBreakDuration
     }
@@ -124,52 +124,8 @@ extension SettingsVC {
             
         case .timerSettings(let timeSettingsItems):
             let cell = tableView.dequeueReusableCell(withIdentifier: TimerSettingsCell.cellReuseIdentifier, for: indexPath) as! TimerSettingsCell
-            let title = timeSettingsItems[indexPath.row]
-            switch title {
-                
-            case .work:
-                cell.configureTitle(with: title, durationInMins: workDuration)
-
-                cell.cellActionHandler.sink { subscription in
-                     switch subscription {
-
-                     case .finished: ()
-
-                     }
-                 } receiveValue: {[weak self] sessionType in
-                     print("sessionType: ", sessionType)
-                 }.store(in: &anyCancellable)
-                
-            case .shortBreak:
-                cell.configureTitle(with: title, durationInMins: shortBreakDuration)
-
-                cell.cellActionHandler.sink { subscription in
-                     switch subscription {
-
-                     case .finished: ()
-
-                     }
-                 } receiveValue: {[weak self] sessionType in
-                     print("sessionType: ", sessionType)
-                 }.store(in: &anyCancellable)
-                
-            case .longBreak:
-                
-                cell.configureTitle(with: title, durationInMins: longBreakDuration)
-
-                  cell.cellActionHandler.sink { subscription in
-                     switch subscription {
-
-                     case .finished: ()
-
-                     }
-                 } receiveValue: {[weak self] sessionType in
-                     print("sessionType: ", sessionType)
-                 }.store(in: &anyCancellable)
-                
-            }
-           
-
+            let session = timeSettingsItems[indexPath.row]
+            configure(cell, with: session)
             return cell
             
 
@@ -191,6 +147,24 @@ extension SettingsVC {
 
         }
        
+    }
+    
+    
+    /// Binds TimerSettingsCell with PomodoroSessionType and attaches a combine subscriber to the cell's passthroughSubject
+    fileprivate func configure(_ cell: TimerSettingsCell, with session: PomodoroSessionType) {
+        switch session {
+        case .work:
+            cell.configureTitle(with: session, durationInMins: workDuration)
+            subscribe(to: cell)
+
+        case .shortBreak:
+            cell.configureTitle(with: session, durationInMins: shortBreakDuration)
+            subscribe(to: cell)
+            
+        case .longBreak:
+            cell.configureTitle(with: session, durationInMins: longBreakDuration)
+             subscribe(to: cell)
+        }
     }
     
     
@@ -260,29 +234,98 @@ extension SettingsVC {
     }
     
     
+    
+    
+    
 }
 
 
 
 //MARK: - Actions
+extension SettingsVC {
+    
+    /// Listens to TimerSettingsCell actions published via passthroughsubject
+    fileprivate func subscribe(to cell: TimerSettingsCell) {
+        cell.cellActionPublisher
+        .receive(on: DispatchQueue.main)
+        .sink { _ in
+            
+        } receiveValue: {[weak self] cellAction in
+            switch cellAction {
+                
+            case .increaseDuration(let sessionType):
+                self?.increase(session: sessionType, by: 1)
+                
+            case .decreaseDuration(let sessionType):
+                self?.decrease(session: sessionType, by: 1)
+                
+            }
+        }.store(in: &anyCancellable)
+    }
+    
+    
+    func increase(session: PomodoroSessionType, by num: Int) {
+        switch session {
+        case .work:
+            workDuration += num
+            UserDefaults.standard.set(workDuration, forKey: .workDuration)
 
+        case .shortBreak:
+            shortBreakDuration += num
+            UserDefaults.standard.set(shortBreakDuration, forKey: .shortBreakDuration)
 
-#if canImport(SwiftUI) && DEBUG
-import SwiftUI
+        case .longBreak:
+            longBreakDuration += num
+            UserDefaults.standard.set(longBreakDuration, forKey: .longBreakDuration)
 
-let deviceNames: [String] = [
-    "iPhone SE (2nd generation)"
-]
-
-@available(iOS 13.0, *)
-struct ViewController_Preview: PreviewProvider {
-    static var previews: some View {
-        ForEach(deviceNames, id: \.self) { deviceName in
-            UIViewControllerPreview {
-                SettingsVC()
-            }.previewDevice(PreviewDevice(rawValue: deviceName))
-                .previewDisplayName(deviceName)
         }
     }
+    
+    
+    func decrease(session: PomodoroSessionType, by num: Int) {
+        
+        switch session {
+        case .work:
+            guard workDuration > 0 else {return}
+            workDuration -= num
+            UserDefaults.standard.set(workDuration, forKey: .workDuration)
+
+        case .shortBreak:
+            guard shortBreakDuration > 0 else {return}
+            shortBreakDuration -= num
+            UserDefaults.standard.set(shortBreakDuration, forKey: .shortBreakDuration)
+
+        case .longBreak:
+            guard longBreakDuration > 0 else {return}
+            longBreakDuration -= num
+            UserDefaults.standard.set(longBreakDuration, forKey: .longBreakDuration)
+
+            
+        }
+        
+    }
+    
+    
 }
-#endif
+
+
+
+//#if canImport(SwiftUI) && DEBUG
+//import SwiftUI
+//
+//let deviceNames: [String] = [
+//    "iPhone SE (2nd generation)"
+//]
+//
+//@available(iOS 13.0, *)
+//struct ViewController_Preview: PreviewProvider {
+//    static var previews: some View {
+//        ForEach(deviceNames, id: \.self) { deviceName in
+//            UIViewControllerPreview {
+//                SettingsVC()
+//            }.previewDevice(PreviewDevice(rawValue: deviceName))
+//                .previewDisplayName(deviceName)
+//        }
+//    }
+//}
+//#endif

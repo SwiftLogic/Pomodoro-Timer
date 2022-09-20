@@ -11,16 +11,13 @@ class SettingsVCTests: XCTestCase {
 
     
     var sut: SettingsVC!
-//    var userDefault: UserDefaults!
 
     override func setUpWithError() throws {
         sut = SettingsVC()
-//        userDefault = UserDefaults.standard
     }
 
     override func tearDownWithError() throws {
         sut = nil
-//        userDefault = nil
     }
 
     
@@ -30,7 +27,7 @@ class SettingsVCTests: XCTestCase {
         let userDefault = UserDefaults.standard
         
         
-        let workDuration = userDefault.object(forKey: AppConstant.workDuration) as? Int ?? AppConstant.workDurationDefaultValue
+        let workDuration = userDefault.object(forKey: .workDuration) as? Int ?? .workDurationDefaultValue
         
         
         // Assert
@@ -44,7 +41,7 @@ class SettingsVCTests: XCTestCase {
         let userDefault = UserDefaults.standard
 
 
-        let shortBreakDuration = userDefault.object(forKey: AppConstant.shortBreakDuration) as? Int ?? AppConstant.shorBreakDurationDefaultValue
+        let shortBreakDuration = userDefault.object(forKey: .shortBreakDuration) as? Int ?? .shorBreakDurationDefaultValue
 
         XCTAssertEqual(sut.shortBreakDuration, shortBreakDuration)
 
@@ -56,10 +53,148 @@ class SettingsVCTests: XCTestCase {
         let userDefault = UserDefaults.standard
 
 
-        let longBreakDuration = userDefault.object(forKey: AppConstant.longBreakDuration) as? Int ?? AppConstant.longBreakDurationDefaultValue
+        let longBreakDuration = userDefault.object(forKey: .longBreakDuration) as? Int ?? .longBreakDurationDefaultValue
 
         XCTAssertEqual(sut.longBreakDuration, longBreakDuration)
 
     }
 
+    
+    
+    func testIncreaseWorkDuration() {
+        
+        // Arrange
+        let userDefault = UserDefaults.standard
+        
+        
+        let workDuration = userDefault.object(forKey: .workDuration) as? Int ?? .workDurationDefaultValue
+        
+        
+        // Act
+        sut.increase(session: .work, by: 1)
+        
+        
+        // Assert
+        XCTAssertEqual(sut.workDuration, workDuration + 1)
+        XCTAssertEqual(sut.getCurrentWorkDuration(), sut.workDuration)
+    }
+    
+    
+    func testDecreaseWorkDuration() {
+        // Arrange
+        let userDefault = UserDefaults.standard
+        
+        
+        let workDuration = userDefault.object(forKey: .workDuration) as? Int ?? .workDurationDefaultValue
+        
+        
+        // Act
+        sut.decrease(session: .work, by: 1)
+        
+        // Assert
+        XCTAssertEqual(sut.workDuration, workDuration - 1)
+        XCTAssertEqual(sut.getCurrentWorkDuration(), sut.workDuration)
+
+    }
+    
+    
+    func testTryDecreasingWorkDurationBelowZero() {
+        // Arrange
+        
+        // Act
+        sut.workDuration = 0
+        sut.decrease(session: .work, by: 1)
+        
+        // Assert
+        XCTAssertEqual(sut.workDuration, 0)
+    }
+    
+    
+    func testIncreaseShortBreakDuration() {
+        // Arrange
+        let userDefault = UserDefaults.standard
+        
+        let shortBreakDuration = userDefault.object(forKey: .shortBreakDuration) as? Int ?? .shorBreakDurationDefaultValue
+        
+        // Act
+        sut.increase(session: .shortBreak, by: 1)
+        
+        // Assert
+        XCTAssertEqual(sut.shortBreakDuration, shortBreakDuration + 1)
+        XCTAssertEqual(sut.getCurrentShortBreakDuration(), sut.shortBreakDuration)
+
+    }
+   
+    
+    func testDecreaseShortBreakDuration() {
+        // Arrange
+        let userDefault = UserDefaults.standard
+        
+        let shortBreakDuration = userDefault.object(forKey: .shortBreakDuration) as? Int ?? .shorBreakDurationDefaultValue
+        
+        // Act
+        sut.decrease(session: .shortBreak, by: 1)
+        
+        // Assert
+        XCTAssertEqual(sut.shortBreakDuration, shortBreakDuration - 1)
+        XCTAssertEqual(sut.getCurrentShortBreakDuration(), sut.shortBreakDuration)
+
+    }
+    
+    
+    func testTryDecreasingShortBreakBelowZero() {
+        
+        // Act
+        sut.shortBreakDuration = 0
+        sut.decrease(session: .shortBreak, by: 1)
+        
+        // Assert
+        XCTAssertEqual(sut.shortBreakDuration, 0)
+    }
+    
+    
+    
+    
+    func testIncreaseLongBreakDuration() {
+        // Arrange
+        let userDefault = UserDefaults.standard
+        
+        let longBreakDuration = userDefault.object(forKey: .longBreakDuration) as? Int ?? .longBreakDurationDefaultValue
+        
+        // Act
+        sut.increase(session: .longBreak, by: 1)
+
+        // Assert
+        XCTAssertEqual(sut.longBreakDuration, longBreakDuration + 1)
+        XCTAssertEqual(sut.getCurrentLongBreakDuration(), sut.longBreakDuration)
+
+    }
+    
+    
+    func testDecreaseLongBreakDuration() {
+        // Arrange
+        let userDefault = UserDefaults.standard
+        
+        let longBreakDuration = userDefault.object(forKey: .longBreakDuration) as? Int ?? .longBreakDurationDefaultValue
+        
+        // Act
+        sut.decrease(session: .longBreak, by: 1)
+        
+        // Assert
+        XCTAssertEqual(sut.longBreakDuration, longBreakDuration - 1)
+        XCTAssertEqual(sut.getCurrentLongBreakDuration(), sut.longBreakDuration)
+
+        
+    }
+    
+    
+    func testTryDecreasingLongBreakDurationBelowZero() {
+        // Act
+        sut.longBreakDuration = 0
+        sut.decrease(session: .longBreak, by: 1)
+        // Assert
+        XCTAssertEqual(sut.longBreakDuration, 0)
+    }
 }
+
+

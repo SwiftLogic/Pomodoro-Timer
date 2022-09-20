@@ -24,10 +24,9 @@ class TimerSettingsCell: UITableViewCell {
     
     
     //MARK: - Properties
-    
     static let cellReuseIdentifier = String(describing: TimerSettingsCell.self)
 
-    let cellActionHandler = PassthroughSubject<Action, Never>()
+    let cellActionPublisher = PassthroughSubject<Action, Never>()
     
     fileprivate var pomodoroSessionType = PomodoroSessionType.work
     
@@ -143,17 +142,16 @@ class TimerSettingsCell: UITableViewCell {
     //MARK: - Actions
     @objc fileprivate func didTapIncreaseMins() {
         currentDurationInMinutes += 1
-        cellActionHandler.send(.increaseDuration)
+        cellActionPublisher.send(.increaseDuration(pomodoroSessionType))
     }
     
     
     @objc fileprivate func didTapDecreaseMins() {
+        guard currentDurationInMinutes > 0 else {return}
         currentDurationInMinutes -= 1
-        cellActionHandler.send(.decreaseDuration)
+        cellActionPublisher.send(.decreaseDuration(pomodoroSessionType))
     }
     
-    // increase and decrease shortbreak and longbreak actions
-    // unit test cell actions
     
 }
 
@@ -162,7 +160,7 @@ class TimerSettingsCell: UITableViewCell {
 
 extension TimerSettingsCell {
     enum Action {
-        case increaseDuration
-        case decreaseDuration
+        case increaseDuration(PomodoroSessionType)
+        case decreaseDuration(PomodoroSessionType)
     }
 }
