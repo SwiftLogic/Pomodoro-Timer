@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+import Combine
 class TimerVC: UIViewController {
 
     
@@ -17,6 +17,7 @@ class TimerVC: UIViewController {
         setUpViews()
         setUpInitalState()
     }
+    
 
     
     override func viewDidLayoutSubviews() {
@@ -25,7 +26,10 @@ class TimerVC: UIViewController {
     }
     
     //MARK: - Properties
+    fileprivate var anyCancellable : AnyCancellable?
+
     let currentModeButtonColor = UIColor.appMainColor.withAlphaComponent(0.4)
+    
     fileprivate(set) var timer: Timer?
     
     fileprivate(set) var elapsedTimeInSeconds = 0
@@ -37,10 +41,19 @@ class TimerVC: UIViewController {
         }
     }
     
-    lazy var currentTimerDuration = focusDurationInMinutes
-    var focusDurationInMinutes = 3
-    fileprivate(set) var shortRestDurationInMinutes = 1
-    fileprivate(set) var longBreakDurationInMinutes = 4
+    lazy var currentTimerDuration = workDurationInMinutes
+    
+    var workDurationInMinutes: Int {
+        let workDuration = UserDefaults.standard.object(forKey: .workDuration) as? Int ?? .workDurationDefaultValue
+
+        return workDuration
+    }
+    
+    fileprivate(set) lazy var shortRestDurationInMinutes = getCurrentShortBreakDuration()
+    
+    
+    
+    fileprivate(set) var longBreakDurationInMinutes = getCurrentLongBreakDuration()
 
     var nextFocusBlock: FocusSession = .firstSession
     
@@ -427,7 +440,7 @@ extension TimerVC {
             
             changePomodoroStateBtn.setTitle(PomodoroSessionType.work.description, for: .normal)
             pomodoroSessionType = .work
-            currentTimerDuration = focusDurationInMinutes
+            currentTimerDuration = workDurationInMinutes
             setUpFocusTimerMinutesLabel(color: .appGrayColor)
 //
             
@@ -467,8 +480,39 @@ extension TimerVC {
     
     @objc fileprivate func didTapSettingsButton() {
         let settingsVC = SettingsVC()
+        subscribeTo(settingsVC: settingsVC)
         present(settingsVC, animated: true)
     }
+      
+    
+    
+    fileprivate func subscribeTo(settingsVC: SettingsVC) {
+        anyCancellable = settingsVC.durationChangePublisher.sink(receiveValue: { [weak self] update in
+            switch update {
+            case .increaseDuration(_), .decreaseDuration(_):
+                if self?.currentTimerStatus == .inactive {
+                    self?.refreshTimerLabelAppearance()
+                }
+            }
+        })
+    }
+    
+    
+    fileprivate func refreshTimerLabelAppearance() {
+        switch pomodoroSessionType {
+        case .work:
+            currentTimerDuration = getCurrentWorkDuration()
+            setUpFocusTimerMinutesLabel(color: .appGrayColor)
+        case .shortBreak:
+            currentTimerDuration = getCurrentShortBreakDuration()
+            setUpFocusTimerMinutesLabel(color: .appGrayColor)
+        case .longBreak:
+            currentTimerDuration = getCurrentLongBreakDuration()
+            setUpFocusTimerMinutesLabel(color: .appGrayColor)
+        }
+    }
+                                                                 
+                                                                 
     
     @objc fileprivate func didTapStartPauseButton() {
        handleStartPauseButtonActions(basedOn: currentTimerStatus)
@@ -535,13 +579,13 @@ extension TimerVC {
              //  shorbreak completed
 
              pomodoroSessionType = .work
-             currentTimerDuration = focusDurationInMinutes
+             currentTimerDuration = workDurationInMinutes
              
         case .longBreak:
              
              //  longBreak completed
              pomodoroSessionType = .work
-             currentTimerDuration = focusDurationInMinutes
+             currentTimerDuration = workDurationInMinutes
              
              let labels = [firstSessionLabel, secondSessionLabel, thirdSessionLabel, fourthSessionLabel]
              

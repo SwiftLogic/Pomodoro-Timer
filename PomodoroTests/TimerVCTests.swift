@@ -437,7 +437,7 @@ class TimerVCTests: XCTestCase {
         XCTAssertEqual(sut.changePomodoroStateBtn.title(for: .normal), PomodoroSessionType.work.description)
         
 
-        XCTAssertEqual(sut.currentTimerDuration, sut.focusDurationInMinutes, "currentTimerDuration was not set to focusDurationInMinutes")
+        XCTAssertEqual(sut.currentTimerDuration, sut.workDurationInMinutes, "currentTimerDuration was not set to focusDurationInMinutes")
 
 
     }
@@ -615,7 +615,7 @@ class TimerVCTests: XCTestCase {
         // Arrange
         let changePomodoroStateBtn = sut.changePomodoroStateBtn
         
-        let expectedAttributedText = createAttributedText(title: sut.focusDurationInMinutes, color: .appGrayColor)
+        let expectedAttributedText = createAttributedText(title: sut.workDurationInMinutes, color: .appGrayColor)
         
         // Act
         sut.changePomodoroState(to: .shortBreak)
@@ -638,7 +638,7 @@ class TimerVCTests: XCTestCase {
         
         XCTAssertEqual(changePomodoroStateBtn.title(for: .normal), PomodoroSessionType.work.description, "The changePomodoroStateBtn title should be work")
         
-        XCTAssertEqual(sut.currentTimerDuration, sut.focusDurationInMinutes, "The currentTimerDuration should be focusDurationInMinutes")
+        XCTAssertEqual(sut.currentTimerDuration, sut.workDurationInMinutes, "The currentTimerDuration should be focusDurationInMinutes")
         // assert that label title is accurate
         XCTAssertEqual(timerLabelAttributedText, expectedAttributedText, "timerLabelAttributedText was not updated")
         
@@ -737,6 +737,46 @@ class TimerVCTests: XCTestCase {
     }
     
     
+    
+    
+    func testWorkDurationMatchesActualWorkDuration() {
+        // Arrange
+        let userDefault = UserDefaults.standard
+        
+        
+        let workDuration = userDefault.object(forKey: .workDuration) as? Int ?? .workDurationDefaultValue
+        
+                
+        // Assert
+        XCTAssertEqual(sut.workDurationInMinutes, workDuration)
+    }
+    
+    
+    
+    func testShortDurationMatchesActualShortBreakDuration() {
+        // Arrange
+        let userDefault = UserDefaults.standard
+        
+        
+        let shortBreakDuration = userDefault.object(forKey: .shortBreakDuration) as? Int ?? .shorBreakDurationDefaultValue
+        
+                
+        // Assert
+        XCTAssertEqual(sut.shortRestDurationInMinutes, shortBreakDuration)
+    }
+    
+    
+    func testLongBreakDurationMatchesActualLongBreakDuration() {
+        // Arrange
+        let userDefault = UserDefaults.standard
+        
+        
+        let longBreakDuration = userDefault.object(forKey: .longBreakDuration) as? Int ?? .longBreakDurationDefaultValue
+        
+                
+        // Assert
+        XCTAssertEqual(sut.longBreakDurationInMinutes, longBreakDuration)
+    }
     
     
     //MARK: - Helpers

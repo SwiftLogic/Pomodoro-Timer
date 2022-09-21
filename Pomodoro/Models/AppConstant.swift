@@ -30,3 +30,36 @@ extension String {
     static let workDuration = "workDuration"
     
 }
+
+
+
+func getCurrentWorkDuration() -> Int {
+   let userDefault = UserDefaults.standard
+   
+   let workDuration = userDefault.object(forKey: .workDuration) as? Int ?? .workDurationDefaultValue
+   
+   return workDuration
+}
+
+
+
+func getCurrentShortBreakDuration() -> Int {
+   let userDefault = UserDefaults.standard
+
+
+   let shortBreakDuration = userDefault.object(forKey: .shortBreakDuration) as? Int ?? .shorBreakDurationDefaultValue
+   
+   return shortBreakDuration
+}
+
+
+
+
+func getCurrentLongBreakDuration() -> Int {
+   let userDefault = UserDefaults.standard
+
+
+   let longBreakDuration = userDefault.object(forKey: .longBreakDuration) as? Int ?? .longBreakDurationDefaultValue
+   
+   return longBreakDuration
+}

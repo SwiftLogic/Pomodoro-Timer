@@ -76,7 +76,7 @@ class SettingsVCTests: XCTestCase {
         
         // Assert
         XCTAssertEqual(sut.workDuration, workDuration + 1)
-        XCTAssertEqual(sut.getCurrentWorkDuration(), sut.workDuration)
+        XCTAssertEqual(getCurrentWorkDuration(), sut.workDuration)
     }
     
     
@@ -93,7 +93,7 @@ class SettingsVCTests: XCTestCase {
         
         // Assert
         XCTAssertEqual(sut.workDuration, workDuration - 1)
-        XCTAssertEqual(sut.getCurrentWorkDuration(), sut.workDuration)
+        XCTAssertEqual(getCurrentWorkDuration(), sut.workDuration)
 
     }
     
@@ -121,7 +121,7 @@ class SettingsVCTests: XCTestCase {
         
         // Assert
         XCTAssertEqual(sut.shortBreakDuration, shortBreakDuration + 1)
-        XCTAssertEqual(sut.getCurrentShortBreakDuration(), sut.shortBreakDuration)
+        XCTAssertEqual(getCurrentShortBreakDuration(), sut.shortBreakDuration)
 
     }
    
@@ -137,7 +137,7 @@ class SettingsVCTests: XCTestCase {
         
         // Assert
         XCTAssertEqual(sut.shortBreakDuration, shortBreakDuration - 1)
-        XCTAssertEqual(sut.getCurrentShortBreakDuration(), sut.shortBreakDuration)
+        XCTAssertEqual(getCurrentShortBreakDuration(), sut.shortBreakDuration)
 
     }
     
@@ -166,7 +166,7 @@ class SettingsVCTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(sut.longBreakDuration, longBreakDuration + 1)
-        XCTAssertEqual(sut.getCurrentLongBreakDuration(), sut.longBreakDuration)
+        XCTAssertEqual(getCurrentLongBreakDuration(), sut.longBreakDuration)
 
     }
     
@@ -182,7 +182,7 @@ class SettingsVCTests: XCTestCase {
         
         // Assert
         XCTAssertEqual(sut.longBreakDuration, longBreakDuration - 1)
-        XCTAssertEqual(sut.getCurrentLongBreakDuration(), sut.longBreakDuration)
+        XCTAssertEqual(getCurrentLongBreakDuration(), sut.longBreakDuration)
 
         
     }

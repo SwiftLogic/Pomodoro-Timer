@@ -16,9 +16,19 @@ class SettingsVC: UITableViewController {
     }
     
     
+    deinit {
+        print("deinit SettingsVC")
+        
+    }
+    
+
+    
 
     //MARK: - Properties
     fileprivate var anyCancellable = Set<AnyCancellable>()
+        
+    fileprivate(set) var durationChangePublisher = PassthroughSubject<TimerSettingsCell.Action, Never>()
+
     fileprivate let moreSettingItems = [
         "How it works?",
         "Share App",
@@ -35,7 +45,6 @@ class SettingsVC: UITableViewController {
     lazy var shortBreakDuration = getCurrentShortBreakDuration()
     lazy var longBreakDuration = getCurrentLongBreakDuration()
 
-    
     
     fileprivate let toggleSettingsData = [
     
@@ -74,39 +83,6 @@ class SettingsVC: UITableViewController {
         tableView.separatorStyle = .none
         tableView.contentInset = .init(top: 0, left: 0, bottom: 40, right: 0)
     }
-    
-    
-     func getCurrentWorkDuration() -> Int {
-        let userDefault = UserDefaults.standard
-        
-        let workDuration = userDefault.object(forKey: .workDuration) as? Int ?? .workDurationDefaultValue
-        
-        return workDuration
-    }
-   
-    
-    
-     func getCurrentShortBreakDuration() -> Int {
-        let userDefault = UserDefaults.standard
-
-
-        let shortBreakDuration = userDefault.object(forKey: .shortBreakDuration) as? Int ?? .shorBreakDurationDefaultValue
-        
-        return shortBreakDuration
-    }
-   
-    
-    
-    
-     func getCurrentLongBreakDuration() -> Int {
-        let userDefault = UserDefaults.standard
-
-
-        let longBreakDuration = userDefault.object(forKey: .longBreakDuration) as? Int ?? .longBreakDurationDefaultValue
-        
-        return longBreakDuration
-    }
-   
     
 }
 
@@ -234,9 +210,6 @@ extension SettingsVC {
     }
     
     
-    
-    
-    
 }
 
 
@@ -269,16 +242,21 @@ extension SettingsVC {
         case .work:
             workDuration += num
             UserDefaults.standard.set(workDuration, forKey: .workDuration)
+            durationChangePublisher.send(.increaseDuration(.work))
 
         case .shortBreak:
             shortBreakDuration += num
             UserDefaults.standard.set(shortBreakDuration, forKey: .shortBreakDuration)
+            durationChangePublisher.send(.increaseDuration(.shortBreak))
 
         case .longBreak:
             longBreakDuration += num
             UserDefaults.standard.set(longBreakDuration, forKey: .longBreakDuration)
+            durationChangePublisher.send(.increaseDuration(.longBreak))
 
         }
+        
+
     }
     
     
@@ -289,19 +267,24 @@ extension SettingsVC {
             guard workDuration > 0 else {return}
             workDuration -= num
             UserDefaults.standard.set(workDuration, forKey: .workDuration)
+            durationChangePublisher.send(.decreaseDuration(.work))
 
         case .shortBreak:
             guard shortBreakDuration > 0 else {return}
             shortBreakDuration -= num
             UserDefaults.standard.set(shortBreakDuration, forKey: .shortBreakDuration)
+            durationChangePublisher.send(.decreaseDuration(.shortBreak))
 
         case .longBreak:
             guard longBreakDuration > 0 else {return}
             longBreakDuration -= num
             UserDefaults.standard.set(longBreakDuration, forKey: .longBreakDuration)
+            durationChangePublisher.send(.decreaseDuration(.longBreak))
 
-            
         }
+        
+        
+
         
     }
     
