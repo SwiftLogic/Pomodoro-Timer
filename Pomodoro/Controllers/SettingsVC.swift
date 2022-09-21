@@ -16,9 +16,19 @@ class SettingsVC: UITableViewController {
     }
     
     
+    deinit {
+        print("deinit SettingsVC")
+        
+    }
+    
+
+    
 
     //MARK: - Properties
     fileprivate var anyCancellable = Set<AnyCancellable>()
+        
+    fileprivate(set) var durationChangePublisher = PassthroughSubject<TimerSettingsCell.Action, Never>()
+
     fileprivate let moreSettingItems = [
         "How it works?",
         "Share App",
@@ -35,7 +45,6 @@ class SettingsVC: UITableViewController {
     lazy var shortBreakDuration = getCurrentShortBreakDuration()
     lazy var longBreakDuration = getCurrentLongBreakDuration()
 
-    
     
     fileprivate let toggleSettingsData = [
     
@@ -201,9 +210,6 @@ extension SettingsVC {
     }
     
     
-    
-    
-    
 }
 
 
@@ -236,16 +242,21 @@ extension SettingsVC {
         case .work:
             workDuration += num
             UserDefaults.standard.set(workDuration, forKey: .workDuration)
+            durationChangePublisher.send(.increaseDuration(.work))
 
         case .shortBreak:
             shortBreakDuration += num
             UserDefaults.standard.set(shortBreakDuration, forKey: .shortBreakDuration)
+            durationChangePublisher.send(.increaseDuration(.shortBreak))
 
         case .longBreak:
             longBreakDuration += num
             UserDefaults.standard.set(longBreakDuration, forKey: .longBreakDuration)
+            durationChangePublisher.send(.increaseDuration(.longBreak))
 
         }
+        
+
     }
     
     
@@ -256,19 +267,24 @@ extension SettingsVC {
             guard workDuration > 0 else {return}
             workDuration -= num
             UserDefaults.standard.set(workDuration, forKey: .workDuration)
+            durationChangePublisher.send(.decreaseDuration(.work))
 
         case .shortBreak:
             guard shortBreakDuration > 0 else {return}
             shortBreakDuration -= num
             UserDefaults.standard.set(shortBreakDuration, forKey: .shortBreakDuration)
+            durationChangePublisher.send(.decreaseDuration(.shortBreak))
 
         case .longBreak:
             guard longBreakDuration > 0 else {return}
             longBreakDuration -= num
             UserDefaults.standard.set(longBreakDuration, forKey: .longBreakDuration)
+            durationChangePublisher.send(.decreaseDuration(.longBreak))
 
-            
         }
+        
+        
+
         
     }
     
