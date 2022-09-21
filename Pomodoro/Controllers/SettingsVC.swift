@@ -75,39 +75,6 @@ class SettingsVC: UITableViewController {
         tableView.contentInset = .init(top: 0, left: 0, bottom: 40, right: 0)
     }
     
-    
-     func getCurrentWorkDuration() -> Int {
-        let userDefault = UserDefaults.standard
-        
-        let workDuration = userDefault.object(forKey: .workDuration) as? Int ?? .workDurationDefaultValue
-        
-        return workDuration
-    }
-   
-    
-    
-     func getCurrentShortBreakDuration() -> Int {
-        let userDefault = UserDefaults.standard
-
-
-        let shortBreakDuration = userDefault.object(forKey: .shortBreakDuration) as? Int ?? .shorBreakDurationDefaultValue
-        
-        return shortBreakDuration
-    }
-   
-    
-    
-    
-     func getCurrentLongBreakDuration() -> Int {
-        let userDefault = UserDefaults.standard
-
-
-        let longBreakDuration = userDefault.object(forKey: .longBreakDuration) as? Int ?? .longBreakDurationDefaultValue
-        
-        return longBreakDuration
-    }
-   
-    
 }
 
 

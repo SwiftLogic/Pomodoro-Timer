@@ -37,10 +37,19 @@ class TimerVC: UIViewController {
         }
     }
     
-    lazy var currentTimerDuration = focusDurationInMinutes
-    var focusDurationInMinutes = 3
-    fileprivate(set) var shortRestDurationInMinutes = 1
-    fileprivate(set) var longBreakDurationInMinutes = 4
+    lazy var currentTimerDuration = workDurationInMinutes
+    
+    var workDurationInMinutes: Int {
+        let workDuration = UserDefaults.standard.object(forKey: .workDuration) as? Int ?? .workDurationDefaultValue
+
+        return workDuration
+    }
+    
+    fileprivate(set) lazy var shortRestDurationInMinutes = getCurrentShortBreakDuration()
+    
+    
+    
+    fileprivate(set) var longBreakDurationInMinutes = getCurrentLongBreakDuration()
 
     var nextFocusBlock: FocusSession = .firstSession
     
@@ -427,7 +436,7 @@ extension TimerVC {
             
             changePomodoroStateBtn.setTitle(PomodoroSessionType.work.description, for: .normal)
             pomodoroSessionType = .work
-            currentTimerDuration = focusDurationInMinutes
+            currentTimerDuration = workDurationInMinutes
             setUpFocusTimerMinutesLabel(color: .appGrayColor)
 //
             
@@ -535,13 +544,13 @@ extension TimerVC {
              //  shorbreak completed
 
              pomodoroSessionType = .work
-             currentTimerDuration = focusDurationInMinutes
+             currentTimerDuration = workDurationInMinutes
              
         case .longBreak:
              
              //  longBreak completed
              pomodoroSessionType = .work
-             currentTimerDuration = focusDurationInMinutes
+             currentTimerDuration = workDurationInMinutes
              
              let labels = [firstSessionLabel, secondSessionLabel, thirdSessionLabel, fourthSessionLabel]
              
