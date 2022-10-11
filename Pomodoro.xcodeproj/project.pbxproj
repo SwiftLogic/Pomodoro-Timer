@@ -31,6 +31,7 @@
 		E981E5AB28C1751D00983A4D /* TimerButtonTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E981E5AA28C1751D00983A4D /* TimerButtonTitle.swift */; };
 		E981E5AD28C175AF00983A4D /* TimerStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = E981E5AC28C175AF00983A4D /* TimerStatus.swift */; };
 		E9845FC12893724000DFC7B1 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9845FC02893724000DFC7B1 /* TaskItem.swift */; };
+		E98C6B6728F4FA0B00A16BEC /* Pomodoro.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E98C6B6528F4FA0B00A16BEC /* Pomodoro.xcdatamodeld */; };
 		E99DA5602894BFFD004B9298 /* AddNewTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E99DA55F2894BFFD004B9298 /* AddNewTaskView.swift */; };
 		E99DA5622894D1D2004B9298 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = E99DA5612894D1D2004B9298 /* Protocols.swift */; };
 		E9BACF38288F94BE00FF885E /* CircularProgressBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9BACF37288F94BE00FF885E /* CircularProgressBarView.swift */; };
@@ -75,6 +76,7 @@
 		E981E5AA28C1751D00983A4D /* TimerButtonTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerButtonTitle.swift; sourceTree = "<group>"; };
 		E981E5AC28C175AF00983A4D /* TimerStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerStatus.swift; sourceTree = "<group>"; };
 		E9845FC02893724000DFC7B1 /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
+		E98C6B6628F4FA0B00A16BEC /* Pomodoro.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Pomodoro.xcdatamodel; sourceTree = "<group>"; };
 		E99DA55F2894BFFD004B9298 /* AddNewTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewTaskView.swift; sourceTree = "<group>"; };
 		E99DA5612894D1D2004B9298 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		E9BACF37288F94BE00FF885E /* CircularProgressBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressBarView.swift; sourceTree = "<group>"; };
@@ -165,6 +167,7 @@
 				E92E462C2899F7E8001C596F /* SettingsItem.swift */,
 				E981E5AA28C1751D00983A4D /* TimerButtonTitle.swift */,
 				E96D967328C53AD10075C1AE /* AppConstant.swift */,
+				E98C6B6528F4FA0B00A16BEC /* Pomodoro.xcdatamodeld */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -348,6 +351,7 @@
 				E97BF1C3289AD601001EB220 /* WorkSessionsRecordCell.swift in Sources */,
 				E9697C2028903F810041C045 /* TaskCell.swift in Sources */,
 				E941ECC6288256E9005A9077 /* Utils.swift in Sources */,
+				E98C6B6728F4FA0B00A16BEC /* Pomodoro.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -621,6 +625,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		E98C6B6528F4FA0B00A16BEC /* Pomodoro.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				E98C6B6628F4FA0B00A16BEC /* Pomodoro.xcdatamodel */,
+			);
+			currentVersion = E98C6B6628F4FA0B00A16BEC /* Pomodoro.xcdatamodel */;
+			path = Pomodoro.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = E941ECA52882550A005A9077 /* Project object */;
 }
